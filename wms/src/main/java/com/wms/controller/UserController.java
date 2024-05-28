@@ -1,16 +1,24 @@
 package com.wms.controller;
 
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.wms.model.common.QueryPageParam;
-import com.wms.model.entity.User;
-import com.wms.service.UserServer;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.wms.common.*;
+import com.wms.exception.BusinessException;
+import com.wms.pojo.dto.department.DepartmentQueryRequest;
+import com.wms.pojo.dto.user.*;
+import com.wms.pojo.entity.User;
+import com.wms.pojo.vo.UserLoginVO;
+import com.wms.service.DepartmentService;
+import com.wms.service.UserService;
+import org.springframework.beans.BeanUtils;
+import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
+import org.apache.commons.lang3.StringUtils;
 
-import java.util.HashMap;
-import java.util.List;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
+import static com.wms.service.impl.UserServiceImpl.SALT;
 
 /**
  * <p>
@@ -23,59 +31,151 @@ import java.util.List;
 @RestController
 @RequestMapping("/user")
 public class UserController {
-    @Autowired
-    private UserServer userServer;
 
-    //查看
-    @GetMapping("/list")
-    public List<User> list() {
-        return userServer.list();
+    @Resource
+    private UserService userService;
+    @Resource
+    private DepartmentService departmentService;
+
+    /**
+     * 用户注册功能
+     *
+     * @param userRegisterRequest
+     * @return
+     */
+    @PostMapping("/register")
+    public Response<Long> userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
+        if (userRegisterRequest == null) {
+            throw new BusinessException(ErrorCode.REQUEST_ERROR);
+        }
+        String userAccount = userRegisterRequest.getUserAccount();
+        String userPassword = userRegisterRequest.getUserPassword();
+        String checkPassword = userRegisterRequest.getCheckPassword();
+        if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)) {
+            return null;
+        }
+        long result = userService.userRegister(userAccount, userPassword, checkPassword);
+        return ResultsSet.success(result);
     }
 
-    //新增
+    /**
+     * 用户登录
+     * @param userLoginRequest
+     * @param request
+     * @return
+     */
+    @PostMapping("/login")
+    public Response<UserLoginVO> userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
+        if(userLoginRequest == null){
+            throw new BusinessException(ErrorCode.REQUEST_ERROR);
+        }
+        String userAccount = userLoginRequest.getUserAccount();
+        String userPassword = userLoginRequest.getUserPassword();
+        if(StringUtils.isAnyBlank(userAccount,userPassword)){
+            throw new BusinessException(ErrorCode.REQUEST_ERROR);
+        }
+        UserLoginVO userLoginVO = userService.userLogin(userAccount, userPassword, request);
+        return ResultsSet.success(userLoginVO);
+    }
+
+    /**
+     * 用户注销
+     * @param request
+     * @return
+     */
+    @PostMapping("/logout")
+    public Response<Boolean> userLogout(HttpServletRequest request){
+        if(request == null){
+            throw new BusinessException(ErrorCode.REQUEST_ERROR);
+        }
+        boolean result = userService.userLogout(request);
+        return ResultsSet.success(result);
+    }
+
+    /**
+     * 获取当前登录用户
+     * @param request
+     * @return
+     */
+    @GetMapping("/get/login")
+    public Response<UserLoginVO> getLoginUser(HttpServletRequest request){
+        User user = userService.getLoginUser(request);
+        return ResultsSet.success(userService.getUserLoginVO(user));
+    }
+
+
+
+    //新增用户
     @PostMapping("/add")
-    public boolean add(@RequestBody User user) {
-        return userServer.save(user);
+    public Response<Integer> addUser(@RequestBody UserAddRequest userAddRequest) {
+        if(userAddRequest == null){
+            throw new BusinessException(ErrorCode.REQUEST_ERROR);
+        }
+        User user = new User();
+        BeanUtils.copyProperties(userAddRequest,user);
+        //默认密码12345678
+        String defaultPassword = "12345678";
+        String encryptPassword = DigestUtils.md5DigestAsHex((SALT + defaultPassword).getBytes());
+        user.setUserPassword(encryptPassword);
+        boolean result = userService.save(user);
+        if(!result){
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR,"添加用户失败");
+        }
+        return ResultsSet.success(user.getUid());
     }
 
-    //修改
+    //修改用户
     @PostMapping("/update")
-    public boolean update(@RequestBody User user) {
-        return userServer.updateById(user);
+    public Response<Boolean> updateUser(@RequestBody UserUpdateRequest userUpdateRequest,HttpServletRequest request) {
+        if(userUpdateRequest == null || userUpdateRequest.getUid() == null){
+            throw new BusinessException(ErrorCode.REQUEST_ERROR);
+        }
+        User user = new User();
+        BeanUtils.copyProperties(userUpdateRequest,user);
+        boolean result = userService.updateById(user);
+        if(userUpdateRequest.getDepartmentId() != null){
+            DepartmentQueryRequest departmentQueryRequest = new DepartmentQueryRequest();
+            departmentQueryRequest.setId(user.getDepartment());
+            departmentService.count(departmentService.getQueryWrapper(departmentQueryRequest));
+        }
+        if(!result){
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR,"添加用户失败");
+        }
+        return ResultsSet.success(true);
     }
 
-    //新增或修改
-    @PostMapping("/saveOrUpdate")
-    public boolean saveOrUpdate(@RequestBody User user) {
-        return userServer.saveOrUpdate(user);
-    }
 
-    //删除
+    //删除用户
     @GetMapping("/delete")
-    public boolean remove(Integer uid) {
-        return userServer.removeById(uid);
+    public Response<Boolean> removeUser(@RequestBody RemoveRequest removeRequest,HttpServletRequest request) {
+        if(removeRequest == null || removeRequest.getUid() == null){
+            throw new BusinessException(ErrorCode.REQUEST_ERROR);
+        }
+        boolean result = userService.removeById(removeRequest.getUid());
+        return ResultsSet.success(result);
     }
 
-    //查询
-    @PostMapping("/select")
-    public List<User> select(@RequestBody User user) {
-        LambdaQueryWrapper<User> lambdaQueryWrapper = new LambdaQueryWrapper();
-        lambdaQueryWrapper.like(User::getUsername, user.getUsername());
-        return userServer.list(lambdaQueryWrapper);
+    //根据id获取用户（仅管理员）
+    @PostMapping("/get")
+    public Response<User> getUserById(Integer uid, HttpServletRequest request) {
+        if (uid <= 0) {
+            throw new BusinessException(ErrorCode.REQUEST_ERROR);
+        }
+        User user = userService.getById(uid);
+        if(user == null){
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR,"添加用户失败");
+        }
+        return ResultsSet.success(user);
     }
 
     //分页查询
     @PostMapping("/listPage")
-    public List<User> listPage(@RequestBody QueryPageParam param) {
-        HashMap map = param.getData();
-//        System.out.println(map);
-        Page<User> page = new Page<>(param.getPageNum(), param.getPageSize());
-        String username = (String) map.get("username");
-        LambdaQueryWrapper<User> lambdaQueryWrapper = new LambdaQueryWrapper();
-        lambdaQueryWrapper.like(User::getUsername, username);
-        Page<User> result = userServer.page(page, lambdaQueryWrapper);
-        System.out.println("total = " + result.getTotal());
-        return result.getRecords();
+    public Response<Page<User>> listPage(@RequestBody UserQueryRequest userQueryRequest, HttpServletRequest request) {
+        int current = userQueryRequest.getCurrent();
+        int size = userQueryRequest.getPageSize();
+        Page<User> userPage = userService.page(new Page<>(current, size),
+                userService.getQueryWrapper(userQueryRequest));
+        return ResultsSet.success(userPage);
     }
 //    @PostMapping("/listPage2")
 //    public Response listPage2(@RequestBody QueryPageParam param) {

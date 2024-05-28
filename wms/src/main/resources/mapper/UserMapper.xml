@@ -3,7 +3,7 @@
 <mapper namespace="com.wms.mapper.UserMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.wms.model.entity.User">
+    <resultMap id="BaseResultMap" type="com.wms.pojo.entity.User">
         <id column="uid" property="uid" />
         <result column="no" property="no" />
         <result column="username" property="username" />

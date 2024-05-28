@@ -1,4 +1,4 @@
-package com.wms.model.entity;
+package com.wms.pojo.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -26,11 +26,11 @@ public class User implements Serializable {
     @TableId(value = "uid", type = IdType.AUTO)
     private Integer uid;
 
-    private String no;
+    private String userAccount;
 
-    private String username;
+    private String userName;
 
-    private String password;
+    private String userPassword;
 
     private Integer age;
 
@@ -38,7 +38,9 @@ public class User implements Serializable {
 
     private String phone;
 
-    private Integer roleId;
+    private String role;
+
+    private Integer department;
 
 
 }
