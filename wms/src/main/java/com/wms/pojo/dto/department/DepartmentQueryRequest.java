@@ -11,7 +11,10 @@ import java.io.Serializable;
  */
 @Data
 public class DepartmentQueryRequest extends QueryPageParam implements Serializable {
-    private Integer id;
-    private String departmentName;
+
+    private Integer dptId;
+
+    private String dptName;
+
     private static final long serialVersionUID = 1L;
 }

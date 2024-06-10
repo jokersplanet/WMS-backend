@@ -41,7 +41,7 @@ public class UserQueryRequest extends QueryPageParam implements Serializable {
     /**
      * 所属部门
      */
-    private Integer departmentId;
+    private Integer department;
 
     private static final long serialVersionUID = 1L;
 }

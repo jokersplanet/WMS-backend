@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wms.mapper.GoodsMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wms.pojo.entity.Goods">
+        <id column="goods_id" property="goodsId" />
+        <result column="goods_name" property="goodsName" />
+        <result column="inbound_time" property="inboundTime" />
+        <result column="outbound_time" property="outboundTime" />
+        <result column="count" property="count" />
+        <result column="price" property="price" />
+        <result column="value" property="value" />
+        <result column="lower_limit" property="lowerLimit" />
+        <result column="upper_limit" property="upperLimit" />
+        <result column="class_id" property="classId" />
+        <result column="unit_id" property="unitId" />
+        <result column="cate_id" property="cateId" />
+        <result column="ware_id" property="wareId" />
+        <result column="is_deleted" property="isDeleted" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        goods_id, goods_name, inbound_time, outbound_time, count, price, value, lower_limit, upper_limit, class_id, unit_id, cate_id, ware_id, is_deleted
+    </sql>
+
+</mapper>

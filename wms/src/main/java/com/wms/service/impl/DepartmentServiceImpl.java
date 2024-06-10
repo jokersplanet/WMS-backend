@@ -14,9 +14,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 /**
- * <p>
- *  服务实现类
- * </p>
  *
  * @author wenhui
  * @since 2024-05-28
@@ -31,15 +28,14 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
         if(departmentQueryRequest == null){
             return queryWrapper;
         }
-        Integer id = departmentQueryRequest.getId();
-        String departmentName = departmentQueryRequest.getDepartmentName();
+        Integer id = departmentQueryRequest.getDptId();
+        String departmentName = departmentQueryRequest.getDptName();
         String sortField = departmentQueryRequest.getSortField();
         String sortOrder = departmentQueryRequest.getSortOrder();
-        queryWrapper.eq(ObjectUtils.isNotEmpty(id), "uid",id);
-        queryWrapper.eq(StringUtils.isNotBlank(departmentName), "departmentName", departmentName);
-        queryWrapper.eq("isDelete",false);
-        queryWrapper.orderBy(SqlUtils.validSortField(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC),
-                sortField);
+        queryWrapper.eq(ObjectUtils.isNotEmpty(id), "dpt_id",id);
+        queryWrapper.eq(StringUtils.isNotBlank(departmentName), "dpt_name", departmentName);
+        queryWrapper.eq("is_deleted",true);
+        queryWrapper.orderBy(SqlUtils.validSortField(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC), sortField);
         return queryWrapper;
     }
 }

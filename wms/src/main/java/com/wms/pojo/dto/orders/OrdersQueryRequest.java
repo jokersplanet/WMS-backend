@@ -1,0 +1,33 @@
+package com.wms.pojo.dto.orders;
+
+import com.wms.common.QueryPageParam;
+import lombok.Data;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+
+/**
+ * @author lwh
+ * @create 2024-06-08 14:19
+ */
+@Data
+public class OrdersQueryRequest extends QueryPageParam implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    private Integer orderId;
+
+    private String goodsName;
+
+    private BigDecimal price;
+
+    private BigDecimal value;
+
+    private Integer count;
+
+    private String time;
+
+    private Integer status;
+
+    private String notes;
+}

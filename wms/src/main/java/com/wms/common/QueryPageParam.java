@@ -12,10 +12,17 @@ import java.util.List;
  */
 @Data
 public class QueryPageParam {
-    //页面大小
+
+    /**
+     * 页面大小
+     */
     private  int pageSize = 10;
-    //当前页号默认为1
+
+    /**
+     * 当前页号默认为1
+     */
     private  int current = 1;
+
     /**
      * 排序字段
      */

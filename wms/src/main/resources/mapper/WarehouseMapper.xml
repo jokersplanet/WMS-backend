@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wms.mapper.WarehouseMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wms.pojo.entity.Warehouse">
+        <id column="ware_id" property="wareId" />
+        <result column="ware_head" property="wareHead" />
+        <result column="ware_name" property="wareName" />
+        <result column="ware_value" property="wareValue" />
+        <result column="ware_notes" property="wareNotes" />
+        <result column="ware_address" property="wareAddress" />
+        <result column="is_deleted" property="isDeleted" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        ware_id, ware_head, ware_name, ware_value, ware_notes, ware_address, is_deleted
+    </sql>
+
+</mapper>

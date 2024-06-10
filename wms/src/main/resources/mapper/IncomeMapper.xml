@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wms.mapper.IncomeMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wms.pojo.entity.Income">
+        <id column="income_id" property="incomeId" />
+        <result column="time" property="time" />
+        <result column="value" property="value" />
+        <result column="origin" property="origin" />
+        <result column="notes" property="notes" />
+        <result column="is_deleted" property="isDeleted" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        income_id, time, value, origin, notes, is_deleted
+    </sql>
+
+</mapper>

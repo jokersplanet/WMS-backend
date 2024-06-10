@@ -50,7 +50,7 @@ public class FastAutoGeneratorTest {
         GlobalConfig gc = new GlobalConfig();
         String projectPath = "D:\\java\\git\\WMS-backend\\wms";
         gc.setOutputDir(projectPath + "/src/main/java");
-        gc.setAuthor("wenhui");
+        gc.setAuthor("lwh");
         gc.setOpen(false);
         gc.setSwagger2(true); //实体属性 Swagger2 注解
         gc.setBaseResultMap(true);//XML ResultMap

@@ -4,14 +4,15 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.wms.pojo.entity.Department">
-        <id column="uid" property="uid" />
-        <result column="name" property="name" />
-        <result column="notes" property="notes" />
+        <id column="dpt_id" property="dptId" />
+        <result column="dpt_name" property="dptName" />
+        <result column="dpt_notes" property="dptNotes" />
+        <result column="is_deleted" property="isDeleted" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        uid, name, notes
+        dpt_id, dpt_name, dpt_notes, is_deleted
     </sql>
 
 </mapper>

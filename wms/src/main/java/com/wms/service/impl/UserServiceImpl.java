@@ -184,6 +184,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         queryWrapper.eq(ObjectUtils.isNotEmpty(phone), "phone", phone);
         queryWrapper.eq(StringUtils.isNotBlank(userRole), "role", userRole);
         queryWrapper.like(StringUtils.isNotBlank(userName), "userName", userName);
+        queryWrapper.eq("is_deleted",true);
         queryWrapper.orderBy(SqlUtils.validSortField(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC),
                 sortField);
         return queryWrapper;

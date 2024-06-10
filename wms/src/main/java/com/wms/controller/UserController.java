@@ -21,10 +21,6 @@ import javax.servlet.http.HttpServletRequest;
 import static com.wms.service.impl.UserServiceImpl.SALT;
 
 /**
- * <p>
- * 前端控制器
- * </p>
- *
  * @author wenhui
  * @since 2024-05-20
  */
@@ -135,18 +131,18 @@ public class UserController {
         boolean result = userService.updateById(user);
         if(userUpdateRequest.getDepartmentId() != null){
             DepartmentQueryRequest departmentQueryRequest = new DepartmentQueryRequest();
-            departmentQueryRequest.setId(user.getDepartment());
+            departmentQueryRequest.setDptId(user.getDepartment());
             departmentService.count(departmentService.getQueryWrapper(departmentQueryRequest));
         }
         if(!result){
-            throw new BusinessException(ErrorCode.SYSTEM_ERROR,"添加用户失败");
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR,"修改用户失败");
         }
         return ResultsSet.success(true);
     }
 
 
     //删除用户
-    @GetMapping("/delete")
+    @PostMapping("/delete")
     public Response<Boolean> removeUser(@RequestBody RemoveRequest removeRequest,HttpServletRequest request) {
         if(removeRequest == null || removeRequest.getUid() == null){
             throw new BusinessException(ErrorCode.REQUEST_ERROR);

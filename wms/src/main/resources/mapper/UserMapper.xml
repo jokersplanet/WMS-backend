@@ -5,18 +5,20 @@
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.wms.pojo.entity.User">
         <id column="uid" property="uid" />
-        <result column="no" property="no" />
-        <result column="username" property="username" />
-        <result column="password" property="password" />
+        <result column="user_account" property="userAccount" />
+        <result column="user_name" property="userName" />
+        <result column="user_password" property="userPassword" />
         <result column="age" property="age" />
         <result column="sex" property="sex" />
         <result column="phone" property="phone" />
-        <result column="role_id" property="roleId" />
+        <result column="role" property="role" />
+        <result column="department" property="department" />
+        <result column="is_deleted" property="isDeleted" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        uid, no, username, password, age, sex, phone, role_id
+        uid, user_account, user_name, user_password, age, sex, phone, `role` , department , is_deleted
     </sql>
 
 </mapper>
