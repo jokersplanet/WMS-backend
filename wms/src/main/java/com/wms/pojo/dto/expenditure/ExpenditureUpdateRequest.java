@@ -4,6 +4,9 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.sql.Date;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * @author lwh
@@ -16,7 +19,7 @@ public class ExpenditureUpdateRequest implements Serializable {
 
     private Integer expId;
 
-    private String time;
+    private Date time;
 
     private BigDecimal value;
 

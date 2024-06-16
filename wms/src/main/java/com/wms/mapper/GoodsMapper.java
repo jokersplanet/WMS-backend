@@ -1,7 +1,7 @@
 package com.wms.mapper;
 
-import com.wms.pojo.entity.Goods;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.wms.pojo.entity.Goods;
 
 /**
  * <p>

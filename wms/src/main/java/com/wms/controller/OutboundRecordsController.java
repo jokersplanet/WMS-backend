@@ -7,10 +7,7 @@ import com.wms.common.ErrorCode;
 import com.wms.common.Response;
 import com.wms.common.ResultsSet;
 import com.wms.exception.BusinessException;
-import com.wms.pojo.dto.inboundRecords.InboundRecordsAddRequest;
-import com.wms.pojo.dto.inboundRecords.InboundRecordsDeleteRequest;
 import com.wms.pojo.dto.inboundRecords.InboundRecordsQueryRequest;
-import com.wms.pojo.dto.inboundRecords.InboundRecordsUpdateRequest;
 import com.wms.pojo.dto.outboundRecords.OutboundRecordsAddRequest;
 import com.wms.pojo.dto.outboundRecords.OutboundRecordsDeleteRequest;
 import com.wms.pojo.dto.outboundRecords.OutboundRecordsQueryRequest;
@@ -19,6 +16,8 @@ import com.wms.pojo.entity.Goods;
 import com.wms.pojo.entity.InboundRecords;
 import com.wms.pojo.entity.OutboundRecords;
 import com.wms.pojo.entity.User;
+import com.wms.pojo.vo.InboundRecordsVO;
+import com.wms.pojo.vo.OutboundRecordsVO;
 import com.wms.service.GoodsService;
 import com.wms.service.OutboundRecordsService;
 import com.wms.service.UserService;
@@ -31,7 +30,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Priority;
 import javax.annotation.Resource;
 
 /**
@@ -62,11 +60,25 @@ public class OutboundRecordsController {
      * @return
      */
     @PostMapping("/list/page")
-    public Response<Page<OutboundRecords>> listOutboundsByPage(@RequestBody OutboundRecordsQueryRequest outboundRecordsQueryRequest){
+    public Response<Page<OutboundRecordsVO>> listOutboundsByPage(@RequestBody OutboundRecordsQueryRequest outboundRecordsQueryRequest){
         int current = outboundRecordsQueryRequest.getCurrent();
         int size = outboundRecordsQueryRequest.getPageSize();
-        Page<OutboundRecords> page = outboundRecordsService.page(new Page<>(current, size), outboundRecordsService.getQueryWrapper(outboundRecordsQueryRequest));
-        return ResultsSet.success(page);
+        Page<OutboundRecords> outboundRecordsPage = outboundRecordsService.page(new Page<>(current, size), outboundRecordsService.getQueryWrapper(outboundRecordsQueryRequest));
+        Page<OutboundRecordsVO> outboundRecordsVOPage = outboundRecordsService.getOutboundRecordsVOPage(outboundRecordsPage);
+        return ResultsSet.success(outboundRecordsVOPage);
+    }
+
+    /**
+     * 根据时间分页获取出库记录信息
+     * 注意需要用户传入startDate和endDate
+     * @param outboundRecordsQueryRequest
+     * @return
+     */
+    @PostMapping("/list/page/time")
+    public Response<Page<OutboundRecordsVO>> listOutboundsByTime(@RequestBody OutboundRecordsQueryRequest outboundRecordsQueryRequest){
+        Page<OutboundRecords> outboundRecordsPage = outboundRecordsService.page(new Page<>(), outboundRecordsService.getQueryWrapper(outboundRecordsQueryRequest));
+        Page<OutboundRecordsVO> outboundRecordsVOPage =  outboundRecordsService.getOutboundRecordsVOPage(outboundRecordsPage);
+        return ResultsSet.success(outboundRecordsVOPage);
     }
 
 
@@ -82,13 +94,11 @@ public class OutboundRecordsController {
         }
         OutboundRecords outboundRecords = new OutboundRecords();
         BeanUtils.copyProperties(outboundRecordsAddRequest,outboundRecords);
-        LambdaQueryWrapper<Goods> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Goods::getGoodsName,outboundRecordsAddRequest.getGoodsName());
-        LambdaQueryWrapper<User> queryWrapper1 = new LambdaQueryWrapper<>();
-        queryWrapper1.eq(User::getUserAccount,outboundRecordsAddRequest.getUserAccount());
-        if(goodsService.getOne(queryWrapper) == null){
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(User::getUserAccount,outboundRecordsAddRequest.getUserAccount());
+        if(goodsService.getById(outboundRecordsAddRequest.getGoodsId()) == null){
             throw new BusinessException(ErrorCode.REQUEST_ERROR,"不存在该货物");
-        }else if(userService.getOne(queryWrapper1) == null){
+        }else if(userService.getOne(queryWrapper) == null){
             throw new BusinessException(ErrorCode.REQUEST_ERROR,"不存在该账户");
         }else if(warehouseService.getById(outboundRecordsAddRequest.getWareId()) == null){
             throw new BusinessException(ErrorCode.REQUEST_ERROR,"不存在该仓库，请先创建该仓库或选择其他仓库");
@@ -127,13 +137,13 @@ public class OutboundRecordsController {
         }
         OutboundRecords outboundRecords = new OutboundRecords();
         BeanUtils.copyProperties(outboundRecordsUpdateRequest, outboundRecords);
-        LambdaQueryWrapper<Goods> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Goods::getGoodsName, outboundRecordsUpdateRequest.getGoodsName());
-        LambdaQueryWrapper<User> queryWrapper1 = new LambdaQueryWrapper<>();
-        queryWrapper1.eq(User::getUserAccount, outboundRecordsUpdateRequest.getUserAccount());
-        if (goodsService.getOne(queryWrapper) == null) {
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(User::getUserAccount, outboundRecordsUpdateRequest.getUserAccount());
+        if (outboundRecordsService.getById(outboundRecordsUpdateRequest.getOutboundId()) == null){
+            throw new BusinessException(ErrorCode.REQUEST_ERROR,"不存在该记录，无法更新该记录信息");
+        } else if(goodsService.getById(outboundRecordsUpdateRequest.getGoodsId()) == null) {
             throw new BusinessException(ErrorCode.REQUEST_ERROR, "不存在该货物");
-        } else if (userService.getOne(queryWrapper1) == null) {
+        } else if (userService.getOne(queryWrapper) == null) {
             throw new BusinessException(ErrorCode.REQUEST_ERROR, "不存在该账户");
         } else if (warehouseService.getById(outboundRecordsUpdateRequest.getWareId()) == null) {
             throw new BusinessException(ErrorCode.REQUEST_ERROR, "不存在该仓库，请先创建该仓库或选择其他仓库");

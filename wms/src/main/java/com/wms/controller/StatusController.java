@@ -104,10 +104,14 @@ public class StatusController {
         }
         Status status = new Status();
         BeanUtils.copyProperties(statusUpdateRequest,status);
-        boolean result = statusService.updateById(status);
-        if(!result){
-            throw new BusinessException(ErrorCode.SYSTEM_ERROR,"修改状态记录失败");
+        if(statusService.getById(statusUpdateRequest.getId()) == null){
+            throw new BusinessException(ErrorCode.REQUEST_ERROR,"不存在该状态，无法更新该状态信息");
+        }else{
+            boolean result = statusService.updateById(status);
+            if(!result){
+                throw new BusinessException(ErrorCode.SYSTEM_ERROR,"修改状态记录失败");
+            }
+            return ResultsSet.success(result);
         }
-        return ResultsSet.success(result);
     }
 }

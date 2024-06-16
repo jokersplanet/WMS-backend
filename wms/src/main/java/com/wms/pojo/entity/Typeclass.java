@@ -20,7 +20,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@ApiModel(value="Typeclass对象", description="货物种类(小类)")
+@ApiModel(value="Typeclass对象", description="货物种类")
 public class Typeclass implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -28,11 +28,8 @@ public class Typeclass implements Serializable {
     @TableId(value = "class_id", type = IdType.AUTO)
     private Integer classId;
 
-    @ApiModelProperty("小类名")
+    @ApiModelProperty("类名")
     private String className;
-
-    @ApiModelProperty("大类id")
-    private Integer categoryId;
 
     @ApiModelProperty("逻辑删除")
     @TableLogic

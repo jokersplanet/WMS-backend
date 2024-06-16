@@ -6,6 +6,7 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.sql.Date;
 
 /**
  * @author lwh
@@ -18,11 +19,11 @@ public class ScrapRecordsAddRequest implements Serializable {
 
     private Integer wareId;
 
-    private String goodsName;
+    private Integer goodsId;
 
     private Long count;
 
-    private String time;
+    private Date time;
 
     private BigDecimal price;
 

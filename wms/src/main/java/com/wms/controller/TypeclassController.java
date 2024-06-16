@@ -6,18 +6,11 @@ import com.wms.common.ErrorCode;
 import com.wms.common.Response;
 import com.wms.common.ResultsSet;
 import com.wms.exception.BusinessException;
-import com.wms.pojo.dto.orders.OrdersDeleteRequest;
-import com.wms.pojo.dto.orders.OrdersUpdateRequest;
 import com.wms.pojo.dto.typeclass.TypeclassAddRequest;
 import com.wms.pojo.dto.typeclass.TypeclassDeleteRequest;
 import com.wms.pojo.dto.typeclass.TypeclassQueryRequest;
 import com.wms.pojo.dto.typeclass.TypeclassUpdateRequest;
-import com.wms.pojo.dto.warehouse.WarehouseAddRequest;
-import com.wms.pojo.dto.warehouse.WarehouseQueryRequest;
-import com.wms.pojo.entity.Orders;
 import com.wms.pojo.entity.Typeclass;
-import com.wms.pojo.entity.Warehouse;
-import com.wms.service.CategoryService;
 import com.wms.service.TypeclassService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -44,11 +37,9 @@ public class TypeclassController {
 
     @Resource
     private TypeclassService typeclassService;
-    @Resource
-    private CategoryService categoryService;
 
     /**
-     * 分页获取小类信息
+     * 分页获取类信息
      * @param typeclassQueryRequest
      * @return
      */
@@ -61,7 +52,7 @@ public class TypeclassController {
     }
 
     /**
-     * 增加小类记录
+     * 增加类记录
      * @param typeclassAddRequest
      * @return
      */
@@ -72,19 +63,15 @@ public class TypeclassController {
         }
         Typeclass typeclass = new Typeclass();
         BeanUtils.copyProperties(typeclassAddRequest,typeclass);
-        if(categoryService.getById(typeclassAddRequest.getCategoryId()) == null){
-            throw new BusinessException(ErrorCode.REQUEST_ERROR,"大类不存在，请先创建大类或选择其他大类");
-        }else {
             boolean save = typeclassService.save(typeclass);
             if(!save){
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR);
             }
             return ResultsSet.success(typeclass.getClassId());
-        }
     }
 
     /**
-     * 删除小类记录
+     * 删除类记录
      * @param typeclassDeleteRequest
      * @return
      */
@@ -98,7 +85,7 @@ public class TypeclassController {
     }
 
     /**
-     * 修改小类信息
+     * 修改类信息
      * @param typeclassUpdateRequest
      * @return
      */
@@ -109,12 +96,12 @@ public class TypeclassController {
         }
         Typeclass typeclass = new Typeclass();
         BeanUtils.copyProperties(typeclassUpdateRequest,typeclass);
-        if(categoryService.getById(typeclassUpdateRequest.getCategoryId()) == null){
-            throw new BusinessException(ErrorCode.REQUEST_ERROR,"大类不存在，请先创建大类或选择其他大类");
-        }else {
+        if(typeclassService.getById(typeclassUpdateRequest.getClassId()) == null){
+            throw new BusinessException(ErrorCode.REQUEST_ERROR,"不存在该类，无法修改该类信息");
+        }else{
             boolean result = typeclassService.updateById(typeclass);
             if(!result){
-                throw new BusinessException(ErrorCode.SYSTEM_ERROR,"修改小类信息失败");
+                throw new BusinessException(ErrorCode.SYSTEM_ERROR,"修改类信息失败");
             }
             return ResultsSet.success(result);
         }

@@ -11,6 +11,8 @@ import com.wms.pojo.dto.orders.OrdersDeleteRequest;
 import com.wms.pojo.dto.orders.OrdersQueryRequest;
 import com.wms.pojo.dto.orders.OrdersUpdateRequest;
 import com.wms.pojo.entity.Orders;
+import com.wms.pojo.vo.OrdersVO;
+import com.wms.service.GoodsService;
 import com.wms.service.OrdersService;
 import com.wms.service.StatusService;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +41,8 @@ public class OrdersController {
     @Resource
     private OrdersService ordersService;
     @Resource
+    private GoodsService goodsService;
+    @Resource
     private StatusService statusService;
 
     /**
@@ -47,11 +51,25 @@ public class OrdersController {
      * @return
      */
     @PostMapping("/list/page")
-    public Response<Page<Orders>> listOrdersByPage(@RequestBody OrdersQueryRequest ordersQueryRequest){
+    public Response<Page<OrdersVO>> listOrdersByPage(@RequestBody OrdersQueryRequest ordersQueryRequest){
         int current = ordersQueryRequest.getCurrent();
         int size = ordersQueryRequest.getPageSize();
-        Page<Orders> page = ordersService.page(new Page<>(current, size), ordersService.getQueryWrapper(ordersQueryRequest));
-        return ResultsSet.success(page);
+        Page<Orders> ordersPage = ordersService.page(new Page<>(current, size), ordersService.getQueryWrapper(ordersQueryRequest));
+        Page<OrdersVO> ordersVOPage = ordersService.getOrdersVOPage(ordersPage);
+        return ResultsSet.success(ordersVOPage);
+    }
+
+    /**
+     * 根据时间分页获取订单信息
+     * 注意需要用户传入startDate和endDate
+     * @param ordersQueryRequest
+     * @return
+     */
+    @PostMapping("/list/page/time")
+    public Response<Page<OrdersVO>> listOrdersByTime(@RequestBody OrdersQueryRequest ordersQueryRequest){
+        Page<Orders> ordersPage = ordersService.page(new Page<>(), ordersService.getQueryWrapper(ordersQueryRequest));
+        Page<OrdersVO> ordersVOPage = ordersService.getOrdersVOPage(ordersPage);
+        return ResultsSet.success(ordersVOPage);
     }
 
     /**
@@ -68,6 +86,8 @@ public class OrdersController {
         BeanUtils.copyProperties(ordersAddRequest,order);
         if(statusService.getById(ordersAddRequest.getStatus()) == null){
             throw new BusinessException(ErrorCode.REQUEST_ERROR,"不存在该状态信息");
+        }else if(goodsService.getById(ordersAddRequest.getGoodsId()) == null){
+            throw new BusinessException(ErrorCode.REQUEST_ERROR,"不存在该货物");
         }else{
             boolean save = ordersService.save(order);
             if(!save){
@@ -103,9 +123,13 @@ public class OrdersController {
         }
         Orders order = new Orders();
         BeanUtils.copyProperties(ordersUpdateRequest,order);
-        if(statusService.getById(ordersUpdateRequest.getStatus()) == null){
+        if(ordersService.getById(ordersUpdateRequest.getOrderId()) == null){
+            throw new BusinessException(ErrorCode.REQUEST_ERROR,"不存在该订单，无法更新订单信息");
+        } else if(statusService.getById(ordersUpdateRequest.getStatus()) == null){
             throw new BusinessException(ErrorCode.REQUEST_ERROR,"不存在该状态信息");
-        }else{
+        }else if(goodsService.getById(ordersUpdateRequest.getGoodsId()) == null){
+            throw new BusinessException(ErrorCode.REQUEST_ERROR,"不存在该货物");
+        } else{
             boolean result = ordersService.updateById(order);
             if(!result){
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR,"修改订单失败");

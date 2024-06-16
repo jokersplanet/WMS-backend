@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
+import java.sql.Date;
 
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import io.swagger.annotations.ApiModel;
@@ -21,7 +22,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@ApiModel(value="Orders对象", description="")
+@ApiModel(value="Orders对象", description="订单")
 public class Orders implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -29,8 +30,8 @@ public class Orders implements Serializable {
     @TableId(value = "order_id", type = IdType.AUTO)
     private Integer orderId;
 
-    @ApiModelProperty("货物名称")
-    private String goodsName;
+    @ApiModelProperty("货物id")
+    private String goodsId;
 
     @ApiModelProperty("成本")
     private BigDecimal price;
@@ -42,7 +43,7 @@ public class Orders implements Serializable {
     private Integer count;
 
     @ApiModelProperty("时间")
-    private String time;
+    private Date time;
 
     @ApiModelProperty("状态")
     private Integer status;

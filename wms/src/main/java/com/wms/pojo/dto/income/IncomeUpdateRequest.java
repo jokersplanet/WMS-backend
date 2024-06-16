@@ -4,6 +4,7 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.sql.Date;
 
 /**
  * @author lwh
@@ -16,7 +17,7 @@ public class IncomeUpdateRequest implements Serializable {
 
     private Integer incomeId;
 
-    private String time;
+    private Date time;
 
     private BigDecimal value;
 

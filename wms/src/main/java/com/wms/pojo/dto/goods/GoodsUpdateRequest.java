@@ -34,11 +34,11 @@ public class GoodsUpdateRequest implements Serializable {
 
     private Long upperLimit;
 
-    private Integer classId;
-
     private Integer unitId;
 
-    private Integer cateId;
-
     private Integer wareId;
+
+    private Integer upperClassId;
+
+    private Integer lowerClassId;
 }

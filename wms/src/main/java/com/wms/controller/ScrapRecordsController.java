@@ -7,18 +7,14 @@ import com.wms.common.ErrorCode;
 import com.wms.common.Response;
 import com.wms.common.ResultsSet;
 import com.wms.exception.BusinessException;
-import com.wms.pojo.dto.outboundRecords.OutboundRecordsAddRequest;
-import com.wms.pojo.dto.outboundRecords.OutboundRecordsDeleteRequest;
-import com.wms.pojo.dto.outboundRecords.OutboundRecordsQueryRequest;
-import com.wms.pojo.dto.outboundRecords.OutboundRecordsUpdateRequest;
 import com.wms.pojo.dto.scrapRecords.ScrapRecordsAddRequest;
 import com.wms.pojo.dto.scrapRecords.ScrapRecordsDeleteRequest;
 import com.wms.pojo.dto.scrapRecords.ScrapRecordsQueryRequest;
 import com.wms.pojo.dto.scrapRecords.ScrapRecordsUpdateRequest;
 import com.wms.pojo.entity.Goods;
-import com.wms.pojo.entity.OutboundRecords;
 import com.wms.pojo.entity.ScrapRecords;
 import com.wms.pojo.entity.User;
+import com.wms.pojo.vo.ScrapRecordsVO;
 import com.wms.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -58,11 +54,25 @@ public class ScrapRecordsController {
      * @return
      */
     @PostMapping("/list/page")
-    public Response<Page<ScrapRecords>> listScrapboundsByPage(@RequestBody ScrapRecordsQueryRequest scrapRecordsQueryRequest){
+    public Response<Page<ScrapRecordsVO>> listScrapboundsByPage(@RequestBody ScrapRecordsQueryRequest scrapRecordsQueryRequest){
         int current = scrapRecordsQueryRequest.getCurrent();
         int size = scrapRecordsQueryRequest.getPageSize();
-        Page<ScrapRecords> page = scrapRecordsService.page(new Page<>(current, size), scrapRecordsService.getQueryWrapper(scrapRecordsQueryRequest));
-        return ResultsSet.success(page);
+        Page<ScrapRecords> scrapRecordsPage = scrapRecordsService.page(new Page<>(current, size), scrapRecordsService.getQueryWrapper(scrapRecordsQueryRequest));
+        Page<ScrapRecordsVO> scrapRecordsVOPage = scrapRecordsService.getScrapRecordsVOPage(scrapRecordsPage);
+        return ResultsSet.success(scrapRecordsVOPage);
+    }
+
+    /**
+     * 根据时间分页获取废弃记录信息
+     * 注意需要用户传入startDate和endDate
+     * @param scrapRecordsQueryRequest
+     * @return
+     */
+    @PostMapping("/list/page/time")
+    public Response<Page<ScrapRecordsVO>> listScrapboundsByTime(@RequestBody ScrapRecordsQueryRequest scrapRecordsQueryRequest){
+        Page<ScrapRecords> scrapRecordsPage = scrapRecordsService.page(new Page<>(), scrapRecordsService.getQueryWrapper(scrapRecordsQueryRequest));
+        Page<ScrapRecordsVO> scrapRecordsVOPage = scrapRecordsService.getScrapRecordsVOPage(scrapRecordsPage);
+        return ResultsSet.success(scrapRecordsVOPage);
     }
 
     /**
@@ -77,13 +87,11 @@ public class ScrapRecordsController {
         }
         ScrapRecords scrapRecords = new ScrapRecords();
         BeanUtils.copyProperties(scrapRecordsAddRequest,scrapRecords);
-        LambdaQueryWrapper<Goods> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Goods::getGoodsName,scrapRecordsAddRequest.getGoodsName());
-        LambdaQueryWrapper<User> queryWrapper1 = new LambdaQueryWrapper<>();
-        queryWrapper1.eq(User::getUserAccount,scrapRecordsAddRequest.getUserAccount());
-        if(goodsService.getOne(queryWrapper) == null){
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(User::getUserAccount,scrapRecordsAddRequest.getUserAccount());
+        if(goodsService.getById(scrapRecordsAddRequest.getGoodsId()) == null){
             throw new BusinessException(ErrorCode.REQUEST_ERROR,"不存在该货物");
-        }else if(userService.getOne(queryWrapper1) == null){
+        }else if(userService.getOne(queryWrapper) == null){
             throw new BusinessException(ErrorCode.REQUEST_ERROR,"不存在该账户");
         }else if(warehouseService.getById(scrapRecordsAddRequest.getWareId()) == null){
             throw new BusinessException(ErrorCode.REQUEST_ERROR,"不存在该仓库，请先创建该仓库或选择其他仓库");
@@ -122,13 +130,13 @@ public class ScrapRecordsController {
         }
         ScrapRecords scrapRecords = new ScrapRecords();
         BeanUtils.copyProperties(scrapRecordsUpdateRequest, scrapRecords);
-        LambdaQueryWrapper<Goods> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Goods::getGoodsName, scrapRecordsUpdateRequest.getGoodsName());
-        LambdaQueryWrapper<User> queryWrapper1 = new LambdaQueryWrapper<>();
-        queryWrapper1.eq(User::getUserAccount, scrapRecordsUpdateRequest.getUserAccount());
-        if (goodsService.getOne(queryWrapper) == null) {
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(User::getUserAccount, scrapRecordsUpdateRequest.getUserAccount());
+        if(scrapRecordsService.getById(scrapRecordsUpdateRequest.getScrapId()) == null){
+            throw new BusinessException(ErrorCode.REQUEST_ERROR,"不存在该记录，无法更新记录信息");
+        } else if(goodsService.getById(scrapRecordsUpdateRequest.getGoodsId()) == null) {
             throw new BusinessException(ErrorCode.REQUEST_ERROR, "不存在该货物");
-        } else if (userService.getOne(queryWrapper1) == null) {
+        } else if (userService.getOne(queryWrapper) == null) {
             throw new BusinessException(ErrorCode.REQUEST_ERROR, "不存在该账户");
         } else if (warehouseService.getById(scrapRecordsUpdateRequest.getWareId()) == null) {
             throw new BusinessException(ErrorCode.REQUEST_ERROR, "不存在该仓库，请先创建该仓库或选择其他仓库");

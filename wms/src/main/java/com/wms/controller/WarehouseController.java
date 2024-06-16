@@ -96,10 +96,14 @@ public class WarehouseController {
         }
         Warehouse warehouse = new Warehouse();
         BeanUtils.copyProperties(warehouseUpdateRequest,warehouse);
-        boolean result = warehouseService.updateById(warehouse);
-        if(!result){
-            throw new BusinessException(ErrorCode.SYSTEM_ERROR,"修改状态记录失败");
+        if(warehouseService.getById(warehouseUpdateRequest.getWareId()) == null){
+            throw new BusinessException(ErrorCode.REQUEST_ERROR,"不存在该仓库，无法修改该仓库信息");
+        }else{
+            boolean result = warehouseService.updateById(warehouse);
+            if(!result){
+                throw new BusinessException(ErrorCode.SYSTEM_ERROR,"修改状态记录失败");
+            }
+            return ResultsSet.success(result);
         }
-        return ResultsSet.success(result);
     }
 }

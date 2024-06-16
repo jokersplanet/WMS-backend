@@ -14,6 +14,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.sql.Date;
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -33,14 +35,15 @@ public class ExpenditureServiceImpl extends ServiceImpl<ExpenditureMapper, Expen
             return queryWrapper;
         }
         Integer expId = expenditureQueryRequest.getExpId();
-        String time = expenditureQueryRequest.getTime();
+        Date startDate = expenditureQueryRequest.getStartDate();
+        Date endDate = expenditureQueryRequest.getEndDate();
         BigDecimal value = expenditureQueryRequest.getValue();
         String destination = expenditureQueryRequest.getDestination();
         String notes = expenditureQueryRequest.getNotes();
         String sortField = expenditureQueryRequest.getSortField();
         String sortOrder = expenditureQueryRequest.getSortOrder();
         queryWrapper.eq(ObjectUtils.isNotEmpty(expId),"exp_id",expId);
-        queryWrapper.eq(StringUtils.isNotBlank(time),"time",time);
+        queryWrapper.between("time",startDate,endDate);
         queryWrapper.eq(ObjectUtils.isNotEmpty(value),"value",value);
         queryWrapper.eq(StringUtils.isNotBlank(destination),"destination",destination);
         queryWrapper.eq(StringUtils.isNotBlank(notes),"notes",notes);

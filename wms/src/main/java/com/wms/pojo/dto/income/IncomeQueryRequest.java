@@ -5,6 +5,7 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.sql.Date;
 
 /**
  * @author lwh
@@ -17,7 +18,9 @@ public class IncomeQueryRequest extends QueryPageParam implements Serializable {
 
     private Integer incomeId;
 
-    private String time;
+    private Date startDate;
+
+    private Date endDate;
 
     private BigDecimal value;
 

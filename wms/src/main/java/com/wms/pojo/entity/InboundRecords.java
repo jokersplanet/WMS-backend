@@ -4,6 +4,9 @@ import java.math.BigDecimal;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
+import java.sql.Date;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import io.swagger.annotations.ApiModel;
@@ -27,13 +30,13 @@ public class InboundRecords implements Serializable {
     private Integer inboundId;
 
     @ApiModelProperty("入库时间")
-    private String time;
+    private Date time;
 
     @ApiModelProperty("入库数量")
     private Long count;
 
-    @ApiModelProperty("入库货物名称")
-    private String goodsName;
+    @ApiModelProperty("入库货物id")
+    private Integer goodsId;
 
     @ApiModelProperty("入库仓库")
     private Integer wareId;

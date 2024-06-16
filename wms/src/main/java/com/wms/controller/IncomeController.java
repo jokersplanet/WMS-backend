@@ -56,6 +56,18 @@ public class IncomeController {
     }
 
     /**
+     * 根据时间分页获取收入记录
+     * 注意需要用户传入startDate和endDate
+     * @param incomeQueryRequest
+     * @return
+     */
+    @PostMapping("/list/page/time")
+    public Response<Page<Income>> listIncomeByTime(@RequestBody IncomeQueryRequest incomeQueryRequest){
+        Page<Income> page = incomeService.page(new Page<>(), incomeService.getQueryWrapper(incomeQueryRequest));
+        return ResultsSet.success(page);
+    }
+
+    /**
      * 增加收入记录
      * @param incomeAddRequest
      * @return
@@ -100,10 +112,14 @@ public class IncomeController {
         }
         Income income = new Income();
         BeanUtils.copyProperties(incomeUpdateRequest,income);
-        boolean result = incomeService.updateById(income);
-        if(!result){
-            throw new BusinessException(ErrorCode.SYSTEM_ERROR,"修改记录失败");
+        if(incomeService.getById(incomeUpdateRequest.getIncomeId()) == null){
+            throw new BusinessException(ErrorCode.REQUEST_ERROR,"不存在该收入，无法更新该记录");
+        }else {
+            boolean result = incomeService.updateById(income);
+            if(!result){
+                throw new BusinessException(ErrorCode.SYSTEM_ERROR,"修改记录失败");
+            }
+            return ResultsSet.success(result);
         }
-        return ResultsSet.success(result);
     }
 }

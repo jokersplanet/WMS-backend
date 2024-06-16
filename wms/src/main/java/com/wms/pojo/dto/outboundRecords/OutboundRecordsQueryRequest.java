@@ -7,6 +7,7 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.sql.Date;
 
 /**
  * @author lwh
@@ -19,19 +20,13 @@ public class OutboundRecordsQueryRequest extends QueryPageParam implements Seria
 
     private Integer outboundId;
 
-    private String goodsName;
-
-    private String time;
-
-    private Integer count;
+    private Integer goodsId;
 
     private Integer wareId;
 
     private String userAccount;
 
-    private BigDecimal price;
+    private Date startDate;
 
-    private BigDecimal value;
-
-    private String notes;
+    private Date endDate;
 }

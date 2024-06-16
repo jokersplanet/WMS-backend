@@ -5,6 +5,8 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.sql.Date;
+import java.time.LocalDateTime;
 
 /**
  * @author lwh
@@ -15,7 +17,9 @@ public class ExpenditureQueryRequest extends QueryPageParam implements Serializa
 
     private Integer expId;
 
-    private String time;
+    private Date startDate;
+
+    private Date endDate;
 
     private BigDecimal value;
 

@@ -4,6 +4,7 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.sql.Date;
 
 /**
  * @author lwh
@@ -16,7 +17,7 @@ public class OrdersUpdateRequest implements Serializable {
 
     private Integer orderId;
 
-    private String goodsName;
+    private Integer goodsId;
 
     private BigDecimal price;
 
@@ -24,7 +25,7 @@ public class OrdersUpdateRequest implements Serializable {
 
     private Integer count;
 
-    private String time;
+    private Date time;
 
     private Integer status;
 

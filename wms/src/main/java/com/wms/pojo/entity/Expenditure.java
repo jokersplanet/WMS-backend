@@ -5,6 +5,9 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
+import java.sql.Date;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import io.swagger.annotations.ApiModel;
@@ -32,7 +35,7 @@ public class Expenditure implements Serializable {
     private Integer expId;
 
     @ApiModelProperty("开支时间")
-    private String time;
+    private Date time;
 
     @ApiModelProperty("开支金额")
     private BigDecimal value;

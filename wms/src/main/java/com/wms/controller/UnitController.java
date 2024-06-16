@@ -7,17 +7,11 @@ import com.wms.common.ErrorCode;
 import com.wms.common.Response;
 import com.wms.common.ResultsSet;
 import com.wms.exception.BusinessException;
-import com.wms.pojo.dto.category.CategoryUpdateRequest;
-import com.wms.pojo.dto.typeclass.TypeclassAddRequest;
-import com.wms.pojo.dto.typeclass.TypeclassDeleteRequest;
-import com.wms.pojo.dto.typeclass.TypeclassQueryRequest;
 import com.wms.pojo.dto.unit.UnitAddRequest;
 import com.wms.pojo.dto.unit.UnitDeleteRequest;
 import com.wms.pojo.dto.unit.UnitQueryRequest;
 import com.wms.pojo.dto.unit.UnitUpdateRequest;
-import com.wms.pojo.entity.Category;
 import com.wms.pojo.entity.Goods;
-import com.wms.pojo.entity.Typeclass;
 import com.wms.pojo.entity.Unit;
 import com.wms.service.GoodsService;
 import com.wms.service.UnitService;
@@ -113,10 +107,14 @@ public class UnitController {
         }
         Unit unit = new Unit();
         BeanUtils.copyProperties(unitUpdateRequest,unit);
-        boolean result = unitService.updateById(unit);
-        if(!result){
-            throw new BusinessException(ErrorCode.SYSTEM_ERROR,"修改单位记录失败");
+        if(unitService.getById(unitUpdateRequest.getUnitId()) == null){
+            throw new BusinessException(ErrorCode.REQUEST_ERROR,"不存在该单位，无法修改该单位信息");
+        } else{
+            boolean result = unitService.updateById(unit);
+            if(!result){
+                throw new BusinessException(ErrorCode.SYSTEM_ERROR,"修改单位记录失败");
+            }
+            return ResultsSet.success(result);
         }
-        return ResultsSet.success(result);
     }
 }

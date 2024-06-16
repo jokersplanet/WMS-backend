@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.sql.Date;
 
 /**
  * <p>
@@ -32,17 +33,18 @@ public class IncomeServiceImpl extends ServiceImpl<IncomeMapper, Income> impleme
             return queryWrapper;
         }
         Integer incomeId = incomeQueryRequest.getIncomeId();
-        String time = incomeQueryRequest.getTime();
+        Date startDate = incomeQueryRequest.getStartDate();
+        Date endDate = incomeQueryRequest.getEndDate();
         BigDecimal value = incomeQueryRequest.getValue();
         String origin = incomeQueryRequest.getOrigin();
         String notes = incomeQueryRequest.getNotes();
         String sortField = incomeQueryRequest.getSortField();
         String sortOrder = incomeQueryRequest.getSortOrder();
         queryWrapper.eq(ObjectUtils.isNotEmpty(incomeId),"income_id",incomeId);
-        queryWrapper.eq(StringUtils.isNotBlank(time),"time",time);
         queryWrapper.eq(ObjectUtils.isNotEmpty(value),"value",value);
         queryWrapper.eq(StringUtils.isNotBlank(origin),"origin",origin);
         queryWrapper.eq(StringUtils.isNotBlank(notes),"notes",notes);
+        queryWrapper.between("time",startDate,endDate);
         queryWrapper.eq("is_deleted",true);
         queryWrapper.orderBy(SqlUtils.validSortField(sortField),sortOrder.equals(CommonConstant.SORT_ORDER_ASC),sortField);
         return queryWrapper;

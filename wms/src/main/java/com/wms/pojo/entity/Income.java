@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
+import java.sql.Date;
 
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import io.swagger.annotations.ApiModel;
@@ -32,7 +33,7 @@ public class Income implements Serializable {
     private Integer incomeId;
 
     @ApiModelProperty("收入时间")
-    private String time;
+    private Date time;
 
     @ApiModelProperty("收入金额")
     private BigDecimal value;

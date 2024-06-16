@@ -1,6 +1,7 @@
 package com.wms.controller;
 
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wms.common.ErrorCode;
 import com.wms.common.Response;
@@ -14,13 +15,11 @@ import com.wms.pojo.entity.Expenditure;
 import com.wms.service.ExpenditureService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.sql.Date;
+import java.util.List;
 
 /**
  *
@@ -45,6 +44,22 @@ public class ExpenditureController {
         int current = expenditureQueryRequest.getCurrent();
         int size = expenditureQueryRequest.getPageSize();
         Page<Expenditure> page = expenditureService.page(new Page<>(current, size), expenditureService.getQueryWrapper(expenditureQueryRequest));
+        return ResultsSet.success(page);
+    }
+
+    /**
+     * 根据时间分页获取开支记录
+     * @param expenditureQueryRequest
+     * @return
+     */
+    @PostMapping("/list/page/time")
+    public Response<Page<Expenditure>> listExpenditureByTime(@RequestBody ExpenditureQueryRequest expenditureQueryRequest){
+        Date startDate = expenditureQueryRequest.getStartDate();
+        Date endDate = expenditureQueryRequest.getEndDate();
+        QueryWrapper<Expenditure> queryWrapper = new QueryWrapper<>();
+        queryWrapper.between("time",startDate,endDate);
+//        List<Expenditure> list = expenditureService.list(queryWrapper);
+        Page<Expenditure> page = expenditureService.page(new Page<>(),expenditureService.getQueryWrapper(expenditureQueryRequest));
         return ResultsSet.success(page);
     }
 
@@ -93,10 +108,14 @@ public class ExpenditureController {
         }
         Expenditure expenditure = new Expenditure();
         BeanUtils.copyProperties(expenditureUpdateRequest,expenditure);
-        boolean result = expenditureService.updateById(expenditure);
-        if(!result){
-            throw new BusinessException(ErrorCode.SYSTEM_ERROR,"修改记录失败");
+        if(expenditureService.getById(expenditureUpdateRequest.getExpId()) == null){
+            throw new BusinessException(ErrorCode.REQUEST_ERROR,"不存在该开支，无法更新该记录信息");
+        }else{
+            boolean result = expenditureService.updateById(expenditure);
+            if(!result){
+                throw new BusinessException(ErrorCode.SYSTEM_ERROR,"修改记录失败");
+            }
+            return ResultsSet.success(result);
         }
-        return ResultsSet.success(result);
     }
 }

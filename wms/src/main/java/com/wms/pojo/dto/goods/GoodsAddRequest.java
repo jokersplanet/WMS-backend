@@ -1,5 +1,6 @@
 package com.wms.pojo.dto.goods;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -30,11 +31,11 @@ public class GoodsAddRequest implements Serializable {
 
     private Long upperLimit;
 
-    private Integer classId;
-
     private Integer unitId;
 
-    private Integer cateId;
-
     private Integer wareId;
+
+    private Integer upperClassId;
+
+    private Integer lowerClassId;
 }

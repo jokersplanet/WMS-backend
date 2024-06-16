@@ -17,7 +17,7 @@ import lombok.EqualsAndHashCode;
  * </p>
  *
  * @author lwh
- * @since 2024-06-08
+ * @since 2024-06-13
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -53,17 +53,17 @@ public class Goods implements Serializable {
     @ApiModelProperty("最高限制")
     private Long upperLimit;
 
-    @ApiModelProperty("小类id")
-    private Integer classId;
-
     @ApiModelProperty("单位id")
     private Integer unitId;
 
-    @ApiModelProperty("大类id")
-    private Integer cateId;
-
     @ApiModelProperty("仓库id")
     private Integer wareId;
+
+    @ApiModelProperty("高一级id")
+    private Integer upperClassId;
+
+    @ApiModelProperty("低一级id")
+    private Integer lowerClassId;
 
     @ApiModelProperty("逻辑删除")
     @TableLogic

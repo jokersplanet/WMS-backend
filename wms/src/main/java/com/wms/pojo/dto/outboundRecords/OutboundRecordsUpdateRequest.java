@@ -7,6 +7,7 @@ import lombok.Data;
 import java.awt.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.sql.Date;
 
 /**
  * @author lwh
@@ -19,9 +20,9 @@ public class OutboundRecordsUpdateRequest implements Serializable {
 
     private Integer outboundId;
 
-    private String goodsName;
+    private Integer goodsId;
 
-    private String time;
+    private Date time;
 
     private Integer count;
 

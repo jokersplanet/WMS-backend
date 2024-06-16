@@ -7,6 +7,7 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.sql.Date;
 
 /**
  * @author lwh
@@ -21,17 +22,11 @@ public class ScrapRecordsQueryRequest extends QueryPageParam implements Serializ
 
     private Integer wareId;
 
-    private String goodsName;
-
-    private Long count;
-
-    private String time;
-
-    private BigDecimal price;
-
-    private BigDecimal value;
+    private Integer goodsId;
 
     private String userAccount;
 
-    private String notes;
+    private Date startDate;
+
+    private Date endDate;
 }

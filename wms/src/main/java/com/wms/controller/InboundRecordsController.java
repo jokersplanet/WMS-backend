@@ -7,18 +7,14 @@ import com.wms.common.ErrorCode;
 import com.wms.common.Response;
 import com.wms.common.ResultsSet;
 import com.wms.exception.BusinessException;
-import com.wms.pojo.dto.goods.GoodsAddRequest;
-import com.wms.pojo.dto.goods.GoodsDeleteRequest;
-import com.wms.pojo.dto.goods.GoodsQueryRequest;
-import com.wms.pojo.dto.goods.GoodsUpdateRequest;
 import com.wms.pojo.dto.inboundRecords.InboundRecordsAddRequest;
 import com.wms.pojo.dto.inboundRecords.InboundRecordsDeleteRequest;
 import com.wms.pojo.dto.inboundRecords.InboundRecordsQueryRequest;
 import com.wms.pojo.dto.inboundRecords.InboundRecordsUpdateRequest;
 import com.wms.pojo.entity.Goods;
 import com.wms.pojo.entity.InboundRecords;
-import com.wms.pojo.entity.Orders;
 import com.wms.pojo.entity.User;
+import com.wms.pojo.vo.InboundRecordsVO;
 import com.wms.service.GoodsService;
 import com.wms.service.InboundRecordsService;
 import com.wms.service.UserService;
@@ -61,11 +57,25 @@ public class InboundRecordsController {
      * @return
      */
     @PostMapping("/list/page")
-    public Response<Page<InboundRecords>> listInboundsByPage(@RequestBody InboundRecordsQueryRequest inboundRecordsQueryRequest){
+    public Response<Page<InboundRecordsVO>> listInboundsByPage(@RequestBody InboundRecordsQueryRequest inboundRecordsQueryRequest){
         int current = inboundRecordsQueryRequest.getCurrent();
         int size = inboundRecordsQueryRequest.getPageSize();
-        Page<InboundRecords> page = inboundRecordsService.page(new Page<>(current, size), inboundRecordsService.getQueryWrapper(inboundRecordsQueryRequest));
-        return ResultsSet.success(page);
+        Page<InboundRecords> inboundRecordsPage = inboundRecordsService.page(new Page<>(current, size), inboundRecordsService.getQueryWrapper(inboundRecordsQueryRequest));
+        Page<InboundRecordsVO> inboundRecordsVOPage =  inboundRecordsService.getInboundRecordsVOPage(inboundRecordsPage);
+        return ResultsSet.success(inboundRecordsVOPage);
+    }
+
+    /**
+     * 根据时间分页获取入库记录信息
+     * 注意需要用户传入startDate和endDate
+     * @param inboundRecordsQueryRequest
+     * @return
+     */
+    @PostMapping("/list/page/time")
+    public Response<Page<InboundRecordsVO>> listInboundsByTime(@RequestBody InboundRecordsQueryRequest inboundRecordsQueryRequest){
+        Page<InboundRecords> inboundRecordsPage = inboundRecordsService.page(new Page<>(), inboundRecordsService.getQueryWrapper(inboundRecordsQueryRequest));
+        Page<InboundRecordsVO> inboundRecordsVOPage =  inboundRecordsService.getInboundRecordsVOPage(inboundRecordsPage);
+        return ResultsSet.success(inboundRecordsVOPage);
     }
 
     /**
@@ -80,13 +90,11 @@ public class InboundRecordsController {
         }
         InboundRecords inboundRecords = new InboundRecords();
         BeanUtils.copyProperties(inboundRecordsAddRequest,inboundRecords);
-        LambdaQueryWrapper<Goods> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Goods::getGoodsName,inboundRecordsAddRequest.getGoodsName());
-        LambdaQueryWrapper<User> queryWrapper1 = new LambdaQueryWrapper<>();
-        queryWrapper1.eq(User::getUserAccount,inboundRecordsAddRequest.getUserAccount());
-        if(goodsService.getOne(queryWrapper) == null){
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(User::getUserAccount,inboundRecordsAddRequest.getUserAccount());
+        if(goodsService.getById(inboundRecordsAddRequest.getGoodsId()) == null){
             throw new BusinessException(ErrorCode.REQUEST_ERROR,"不存在该货物");
-        }else if(userService.getOne(queryWrapper1) == null){
+        }else if(userService.getOne(queryWrapper) == null){
             throw new BusinessException(ErrorCode.REQUEST_ERROR,"不存在该账户");
         }else if(warehouseService.getById(inboundRecordsAddRequest.getWareId()) == null){
             throw new BusinessException(ErrorCode.REQUEST_ERROR,"不存在该仓库，请先创建该仓库或选择其他仓库");
@@ -125,13 +133,13 @@ public class InboundRecordsController {
         }
         InboundRecords inboundRecords = new InboundRecords();
         BeanUtils.copyProperties(inboundRecordsUpdateRequest, inboundRecords);
-        LambdaQueryWrapper<Goods> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Goods::getGoodsName, inboundRecordsUpdateRequest.getGoodsName());
-        LambdaQueryWrapper<User> queryWrapper1 = new LambdaQueryWrapper<>();
-        queryWrapper1.eq(User::getUserAccount, inboundRecordsUpdateRequest.getUserAccount());
-        if (goodsService.getOne(queryWrapper) == null) {
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(User::getUserAccount, inboundRecordsUpdateRequest.getUserAccount());
+        if (inboundRecordsService.getById(inboundRecordsUpdateRequest.getInboundId()) == null){
+            throw new BusinessException(ErrorCode.REQUEST_ERROR,"不存在该记录，无法更新该记录信息");
+        } else if(goodsService.getById(inboundRecordsUpdateRequest.getGoodsId()) == null) {
             throw new BusinessException(ErrorCode.REQUEST_ERROR, "不存在该货物");
-        } else if (userService.getOne(queryWrapper1) == null) {
+        } else if (userService.getOne(queryWrapper) == null) {
             throw new BusinessException(ErrorCode.REQUEST_ERROR, "不存在该账户");
         } else if (warehouseService.getById(inboundRecordsUpdateRequest.getWareId()) == null) {
             throw new BusinessException(ErrorCode.REQUEST_ERROR, "不存在该仓库，请先创建该仓库或选择其他仓库");

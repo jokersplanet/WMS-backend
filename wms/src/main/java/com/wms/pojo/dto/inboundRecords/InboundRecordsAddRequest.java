@@ -6,6 +6,7 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.sql.Date;
 
 /**
  * @author lwh
@@ -16,11 +17,11 @@ public class InboundRecordsAddRequest implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private String time;
+    private Date time;
 
     private Long count;
 
-    private String goodsName;
+    private Integer goodsId;
 
     private Integer wareId;
 

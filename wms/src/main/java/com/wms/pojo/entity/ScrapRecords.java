@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
+import java.sql.Date;
 
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import io.swagger.annotations.ApiModel;
@@ -26,26 +27,26 @@ public class ScrapRecords implements Serializable {
     @TableId(value = "scrap_id", type = IdType.AUTO)
     private Integer scrapId;
 
-    @ApiModelProperty("仓库id")
-    private Integer wareId;
-
-    @ApiModelProperty("废弃订单货物名称")
-    private String goodsName;
+    @ApiModelProperty("废弃订单货物id")
+    private Integer goodsId;
 
     @ApiModelProperty("数量")
     private Long count;
 
     @ApiModelProperty("废弃订单时间")
-    private String time;
+    private Date time;
+
+    @ApiModelProperty("仓库id")
+    private Integer wareId;
+
+    @ApiModelProperty("账户")
+    private String userAccount;
 
     @ApiModelProperty("成本")
     private BigDecimal price;
 
     @ApiModelProperty("售价")
     private BigDecimal value;
-
-    @ApiModelProperty("账户")
-    private String userAccount;
 
     @ApiModelProperty("备注")
     private String notes;
