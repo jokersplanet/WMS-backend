@@ -18,6 +18,7 @@ import com.wms.pojo.vo.ScrapRecordsVO;
 import com.wms.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -54,12 +55,13 @@ public class ScrapRecordsController {
      * @return
      */
     @PostMapping("/list/page")
+    @PreAuthorize("hasAuthority('scrapRecords.listPage')")
     public Response<Page<ScrapRecordsVO>> listScrapboundsByPage(@RequestBody ScrapRecordsQueryRequest scrapRecordsQueryRequest){
         int current = scrapRecordsQueryRequest.getCurrent();
         int size = scrapRecordsQueryRequest.getPageSize();
         Page<ScrapRecords> scrapRecordsPage = scrapRecordsService.page(new Page<>(current, size), scrapRecordsService.getQueryWrapper(scrapRecordsQueryRequest));
         Page<ScrapRecordsVO> scrapRecordsVOPage = scrapRecordsService.getScrapRecordsVOPage(scrapRecordsPage);
-        return ResultsSet.success(scrapRecordsVOPage);
+        return Response.success(scrapRecordsVOPage);
     }
 
     /**
@@ -69,10 +71,11 @@ public class ScrapRecordsController {
      * @return
      */
     @PostMapping("/list/page/time")
+    @PreAuthorize("hasAuthority('scrapRecords.listPage.time')")
     public Response<Page<ScrapRecordsVO>> listScrapboundsByTime(@RequestBody ScrapRecordsQueryRequest scrapRecordsQueryRequest){
         Page<ScrapRecords> scrapRecordsPage = scrapRecordsService.page(new Page<>(), scrapRecordsService.getQueryWrapper(scrapRecordsQueryRequest));
         Page<ScrapRecordsVO> scrapRecordsVOPage = scrapRecordsService.getScrapRecordsVOPage(scrapRecordsPage);
-        return ResultsSet.success(scrapRecordsVOPage);
+        return Response.success(scrapRecordsVOPage);
     }
 
     /**
@@ -81,6 +84,7 @@ public class ScrapRecordsController {
      * @return
      */
     @PostMapping("/add")
+    @PreAuthorize("hasAuthority('scrapRecords.add')")
     public Response<Integer> scrapRecordsAdd(@RequestBody ScrapRecordsAddRequest scrapRecordsAddRequest){
         if(scrapRecordsAddRequest == null){
             throw new BusinessException(ErrorCode.SYSTEM_ERROR);
@@ -100,7 +104,7 @@ public class ScrapRecordsController {
             if(!save){
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR);
             }
-            return ResultsSet.success(scrapRecords.getScrapId());
+            return Response.success(scrapRecords.getScrapId());
         }
     }
 
@@ -110,12 +114,13 @@ public class ScrapRecordsController {
      * @return
      */
     @PostMapping("/delete")
+    @PreAuthorize("hasAuthority('scrapRecords.delete')")
     public Response<Boolean> scrapRecordsDelete(@RequestBody ScrapRecordsDeleteRequest scrapRecordsDeleteRequest){
         if(scrapRecordsDeleteRequest == null || scrapRecordsDeleteRequest.getScrapId() <= 0){
             throw new BusinessException(ErrorCode.REQUEST_ERROR);
         }
         boolean result = scrapRecordsService.removeById(scrapRecordsDeleteRequest.getScrapId());
-        return ResultsSet.success(result);
+        return Response.success(result);
     }
 
     /**
@@ -124,6 +129,7 @@ public class ScrapRecordsController {
      * @return
      */
     @PostMapping("/update")
+    @PreAuthorize("hasAuthority('scrapRecords.update')")
     public Response<Boolean> scrapRecordsUpdate(@RequestBody ScrapRecordsUpdateRequest scrapRecordsUpdateRequest) {
         if (scrapRecordsUpdateRequest == null || scrapRecordsUpdateRequest.getScrapId() <= 0) {
             throw new BusinessException(ErrorCode.REQUEST_ERROR);
@@ -145,7 +151,7 @@ public class ScrapRecordsController {
             if (!result) {
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR, "修改出库记录失败");
             }
-            return ResultsSet.success(result);
+            return Response.success(result);
         }
     }
 }

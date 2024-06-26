@@ -17,6 +17,7 @@ import com.wms.pojo.vo.GoodsVO;
 import com.wms.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -54,12 +55,13 @@ public class GoodsController {
      * @return
      */
     @PostMapping("/list/page")
+    @PreAuthorize("hasAuthority('goods.listPage')")
     public Response<Page<GoodsVO>> listGoodsByPage(@RequestBody GoodsQueryRequest goodsQueryRequest){
         int current = goodsQueryRequest.getCurrent();
         int size = goodsQueryRequest.getPageSize();
         Page<Goods> goodspage = goodsService.page(new Page<>(current, size), goodsService.getQueryWrapper(goodsQueryRequest));
         Page<GoodsVO> goodsVOPage = goodsService.getGoodsVOPage(goodspage);
-        return ResultsSet.success(goodsVOPage);
+        return Response.success(goodsVOPage);
     }
 
     /**
@@ -69,13 +71,15 @@ public class GoodsController {
      * @return
      */
     @PostMapping("/list/page/inboundTime")
+    @PreAuthorize("hasAuthority('goods.listPage.inboundTime')")
     public Response<Page<GoodsVO>> listGoodsByInboundTime(@RequestBody GoodsQueryRequest goodsQueryRequest){
 //        Date startDate = goodsQueryRequest.getStartDate();
 //        Date endDate = goodsQueryRequest.getEndDate();
         Page<Goods> goodspage = goodsService.page(new Page<>(), goodsService.getQueryWrapper(goodsQueryRequest));
         Page<GoodsVO> goodsVOPage = goodsService.getGoodsVOPage(goodspage);
-        return ResultsSet.success(goodsVOPage);
+        return Response.success(goodsVOPage);
     }
+
     /**
      * 根据出库时间分页获取货物信息
      * 注意需要用户传入startDate和endDate
@@ -83,6 +87,7 @@ public class GoodsController {
      * @return
      */
     @PostMapping("/list/page/outboundTime")
+    @PreAuthorize("hasAuthority('goods.listPage.outboundTime')")
     public Response<Page<GoodsVO>> listGoodsByOutboundTime(@RequestBody GoodsQueryRequest goodsQueryRequest){
         Date startDate = goodsQueryRequest.getStartDate();
         Date endDate = goodsQueryRequest.getEndDate();
@@ -90,7 +95,7 @@ public class GoodsController {
         queryWrapper.between("outbound_time",startDate,endDate);
         Page<Goods> goodspage = goodsService.page(new Page<>(),queryWrapper);
         Page<GoodsVO> goodsVOPage = goodsService.getGoodsVOPage(goodspage);
-        return ResultsSet.success(goodsVOPage);
+        return Response.success(goodsVOPage);
     }
 
     /**
@@ -100,13 +105,14 @@ public class GoodsController {
      * @return
      */
     @PostMapping("/list/page/wareId")
+    @PreAuthorize("hasAuthority('goods.listPage.wareId')")
     public Response<Page<GoodsVO>> listGoodsByWareId(@RequestBody GoodsQueryRequest goodsQueryRequest){
 //        Integer wareId = goodsQueryRequest.getWareId();
 //        QueryWrapper<Goods> queryWrapper = new QueryWrapper<>();
 //        queryWrapper.eq("ware_id",wareId);
         Page<Goods> goodspage = goodsService.page(new Page<>(),goodsService.getQueryWrapper(goodsQueryRequest));
         Page<GoodsVO> goodsVOPage = goodsService.getGoodsVOPage(goodspage);
-        return ResultsSet.success(goodsVOPage);
+        return Response.success(goodsVOPage);
     }
 
     /**
@@ -115,6 +121,7 @@ public class GoodsController {
      * @return
      */
     @PostMapping("/add")
+    @PreAuthorize("hasAuthority('goods.add')")
     public Response<Integer> goodsAdd(@RequestBody GoodsAddRequest goodsAddRequest){
         if(goodsAddRequest == null){
             throw new BusinessException(ErrorCode.SYSTEM_ERROR);
@@ -134,7 +141,7 @@ public class GoodsController {
             if(!save){
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR);
             }
-            return ResultsSet.success(goods.getGoodsId());
+            return Response.success(goods.getGoodsId());
         }
     }
 
@@ -144,12 +151,13 @@ public class GoodsController {
      * @return
      */
     @PostMapping("/delete")
+    @PreAuthorize("hasAuthority('goods.delete')")
     public Response<Boolean> goodsDelete(@RequestBody GoodsDeleteRequest goodsDeleteRequest){
         if(goodsDeleteRequest == null || goodsDeleteRequest.getGoodsId() <= 0){
             throw new BusinessException(ErrorCode.REQUEST_ERROR);
         }
         boolean result = goodsService.removeById(goodsDeleteRequest.getGoodsId());
-        return ResultsSet.success(result);
+        return Response.success(result);
     }
 
     /**
@@ -158,6 +166,7 @@ public class GoodsController {
      * @return
      */
     @PostMapping("/update")
+    @PreAuthorize("hasAuthority('goods.update')")
     public Response<Boolean> goodsUpdate(@RequestBody GoodsUpdateRequest goodsUpdateRequest){
         if(goodsUpdateRequest == null || goodsUpdateRequest.getGoodsId() <= 0){
             throw new BusinessException(ErrorCode.REQUEST_ERROR);
@@ -179,7 +188,7 @@ public class GoodsController {
             if(!result){
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR,"修改货物记录失败");
             }
-            return ResultsSet.success(result);
+            return Response.success(result);
         }
     }
 }

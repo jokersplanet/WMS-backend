@@ -9,14 +9,22 @@ import com.wms.pojo.dto.user.*;
 import com.wms.pojo.entity.User;
 import com.wms.pojo.vo.UserLoginVO;
 import com.wms.service.DepartmentService;
+import com.wms.service.SysPermsService;
 import com.wms.service.UserService;
+import com.wms.utils.JwtHelper;
 import org.springframework.beans.BeanUtils;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Resource;
+import javax.crypto.MacSpi;
 import javax.servlet.http.HttpServletRequest;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.wms.service.impl.UserServiceImpl.SALT;
 
@@ -33,6 +41,9 @@ public class UserController {
     @Resource
     private DepartmentService departmentService;
 
+    @Resource
+    private SysPermsService sysPermsService;
+
     /**
      * 用户注册功能
      *
@@ -40,6 +51,7 @@ public class UserController {
      * @return
      */
     @PostMapping("/register")
+    @PreAuthorize("hasAuthority('user.register')")
     public Response<Long> userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
         if (userRegisterRequest == null) {
             throw new BusinessException(ErrorCode.REQUEST_ERROR);
@@ -51,127 +63,150 @@ public class UserController {
             return null;
         }
         long result = userService.userRegister(userAccount, userPassword, checkPassword);
-        return ResultsSet.success(result);
+        return Response.success(result);
     }
 
     /**
      * 用户登录
+     *
      * @param userLoginRequest
      * @param request
      * @return
      */
     @PostMapping("/login")
-    public Response<UserLoginVO> userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
-        if(userLoginRequest == null){
+    public Response userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
+        if (userLoginRequest == null) {
             throw new BusinessException(ErrorCode.REQUEST_ERROR);
         }
         String userAccount = userLoginRequest.getUserAccount();
         String userPassword = userLoginRequest.getUserPassword();
-        if(StringUtils.isAnyBlank(userAccount,userPassword)){
+        if (StringUtils.isAnyBlank(userAccount, userPassword)) {
             throw new BusinessException(ErrorCode.REQUEST_ERROR);
         }
+        //使用jwt根据用户id和用户名生成token字符串
+        User user = userService.getByUserAccount(userLoginRequest.getUserAccount());
+        String token = JwtHelper.createToken(Long.valueOf(user.getUid()),user.getUserAccount());
+        Map<String,Object> map = new HashMap<>();
+        map.put("token",token);
         UserLoginVO userLoginVO = userService.userLogin(userAccount, userPassword, request);
-        return ResultsSet.success(userLoginVO);
+        return Response.success(map);
     }
 
     /**
      * 用户注销
+     *
      * @param request
      * @return
      */
     @PostMapping("/logout")
-    public Response<Boolean> userLogout(HttpServletRequest request){
-        if(request == null){
+    @PreAuthorize("hasAuthority('user.logout')")
+    public Response<Boolean> userLogout(HttpServletRequest request) {
+        if (request == null) {
             throw new BusinessException(ErrorCode.REQUEST_ERROR);
         }
         boolean result = userService.userLogout(request);
-        return ResultsSet.success(result);
+        return Response.success(result);
     }
 
     /**
      * 获取当前登录用户
+     *
      * @param request
      * @return
      */
-    @GetMapping("/get/login")
-    public Response<UserLoginVO> getLoginUser(HttpServletRequest request){
+    @GetMapping("/getLogin")
+    @PreAuthorize("hasAuthority('user.getLogin')")
+    public Response<UserLoginVO> getLoginUser(HttpServletRequest request) {
         User user = userService.getLoginUser(request);
-        return ResultsSet.success(userService.getUserLoginVO(user));
+        return Response.success(userService.getUserLoginVO(user));
     }
 
-
+    /**
+     * 查询用户已分配的权限
+     * @param request
+     * @return
+     */
+    @GetMapping("/info")
+    public Response<List<String>> info(HttpServletRequest request){
+        String token = request.getHeader("header");
+        Long userId = JwtHelper.getUserId(token);
+        User user = userService.getById(userId);
+        List<String> permsList = sysPermsService.findUserPermsByUserId(userId);
+        return Response.success(permsList);
+    }
 
     //新增用户
     @PostMapping("/add")
     public Response<Integer> addUser(@RequestBody UserAddRequest userAddRequest) {
-        if(userAddRequest == null){
+        if (userAddRequest == null) {
             throw new BusinessException(ErrorCode.REQUEST_ERROR);
         }
         User user = new User();
-        BeanUtils.copyProperties(userAddRequest,user);
+        BeanUtils.copyProperties(userAddRequest, user);
         //默认密码12345678
         String defaultPassword = "12345678";
         String encryptPassword = DigestUtils.md5DigestAsHex((SALT + defaultPassword).getBytes());
         user.setUserPassword(encryptPassword);
         boolean result = userService.save(user);
-        if(!result){
-            throw new BusinessException(ErrorCode.SYSTEM_ERROR,"添加用户失败");
+        if (!result) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "添加用户失败");
         }
-        return ResultsSet.success(user.getUid());
+        return Response.success(user.getUid());
     }
 
     //修改用户
     @PostMapping("/update")
-    public Response<Boolean> updateUser(@RequestBody UserUpdateRequest userUpdateRequest,HttpServletRequest request) {
-        if(userUpdateRequest == null || userUpdateRequest.getUid() == null){
+    public Response<Boolean> updateUser(@RequestBody UserUpdateRequest userUpdateRequest, HttpServletRequest request) {
+        if (userUpdateRequest == null || userUpdateRequest.getUid() == null) {
             throw new BusinessException(ErrorCode.REQUEST_ERROR);
         }
         User user = new User();
-        BeanUtils.copyProperties(userUpdateRequest,user);
+        BeanUtils.copyProperties(userUpdateRequest, user);
         boolean result = userService.updateById(user);
-        if(userUpdateRequest.getDepartmentId() != null){
+        if (userUpdateRequest.getDepartment() != null) {
             DepartmentQueryRequest departmentQueryRequest = new DepartmentQueryRequest();
             departmentQueryRequest.setDptId(user.getDepartment());
             departmentService.count(departmentService.getQueryWrapper(departmentQueryRequest));
         }
-        if(!result){
-            throw new BusinessException(ErrorCode.SYSTEM_ERROR,"修改用户失败");
+        if (!result) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "修改用户失败");
         }
-        return ResultsSet.success(true);
+        return Response.success(true);
     }
 
 
     //删除用户
     @PostMapping("/delete")
-    public Response<Boolean> removeUser(@RequestBody RemoveRequest removeRequest,HttpServletRequest request) {
-        if(removeRequest == null || removeRequest.getUid() == null){
+    public Response<Boolean> removeUser(@RequestBody RemoveRequest removeRequest, HttpServletRequest request) {
+        if (removeRequest == null || removeRequest.getUid() == null) {
             throw new BusinessException(ErrorCode.REQUEST_ERROR);
         }
         boolean result = userService.removeById(removeRequest.getUid());
-        return ResultsSet.success(result);
+        return Response.success(result);
     }
 
-    //根据id获取用户（仅管理员）
+    //根据id获取用户（仅人力资源管理员）
     @PostMapping("/get")
     public Response<User> getUserById(Integer uid, HttpServletRequest request) {
         if (uid <= 0) {
             throw new BusinessException(ErrorCode.REQUEST_ERROR);
         }
         User user = userService.getById(uid);
-        if(user == null){
-            throw new BusinessException(ErrorCode.SYSTEM_ERROR,"添加用户失败");
+        if (user == null) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "添加用户失败");
         }
-        return ResultsSet.success(user);
+        return Response.success(user);
     }
 
     //分页查询
     @PostMapping("/listPage")
+    @PreAuthorize("hasAuthority('user.listPage')")
     public Response<Page<User>> listPage(@RequestBody UserQueryRequest userQueryRequest, HttpServletRequest request) {
         int current = userQueryRequest.getCurrent();
         int size = userQueryRequest.getPageSize();
         Page<User> userPage = userService.page(new Page<>(current, size),
                 userService.getQueryWrapper(userQueryRequest));
-        return ResultsSet.success(userPage);
+        return Response.success(userPage);
     }
 //    @PostMapping("/listPage2")
 //    public Response listPage2(@RequestBody QueryPageParam param) {

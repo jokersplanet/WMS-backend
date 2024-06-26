@@ -14,6 +14,7 @@ import com.wms.pojo.entity.Typeclass;
 import com.wms.service.TypeclassService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -44,11 +45,12 @@ public class TypeclassController {
      * @return
      */
     @PostMapping("/list/page")
+    @PreAuthorize("hasAuthority('typeclass.listPage')")
     public Response<Page<Typeclass>> listTypeclassByPage(@RequestBody TypeclassQueryRequest typeclassQueryRequest){
         int current = typeclassQueryRequest.getCurrent();
         int size = typeclassQueryRequest.getPageSize();
         Page<Typeclass> page = typeclassService.page(new Page<>(current, size), typeclassService.getQueryWrapper(typeclassQueryRequest));
-        return ResultsSet.success(page);
+        return Response.success(page);
     }
 
     /**
@@ -57,6 +59,7 @@ public class TypeclassController {
      * @return
      */
     @PostMapping("/add")
+    @PreAuthorize("hasAuthority('typeclass.add')")
     public Response<Integer> typeclassAdd(@RequestBody TypeclassAddRequest typeclassAddRequest){
         if(typeclassAddRequest == null){
             throw new BusinessException(ErrorCode.SYSTEM_ERROR);
@@ -67,7 +70,7 @@ public class TypeclassController {
             if(!save){
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR);
             }
-            return ResultsSet.success(typeclass.getClassId());
+            return Response.success(typeclass.getClassId());
     }
 
     /**
@@ -76,12 +79,13 @@ public class TypeclassController {
      * @return
      */
     @PostMapping("/delete")
+    @PreAuthorize("hasAuthority('typeclass.delete')")
     public Response<Boolean> typeclassDelete(@RequestBody TypeclassDeleteRequest typeclassDeleteRequest){
         if(typeclassDeleteRequest == null || typeclassDeleteRequest.getClassId() <= 0){
             throw new BusinessException(ErrorCode.REQUEST_ERROR);
         }
         boolean result = typeclassService.removeById(typeclassDeleteRequest.getClassId());
-        return ResultsSet.success(result);
+        return Response.success(result);
     }
 
     /**
@@ -90,6 +94,7 @@ public class TypeclassController {
      * @return
      */
     @PostMapping("/update")
+    @PreAuthorize("hasAuthority('typeclass.update')")
     public Response<Boolean> typeclassUpdate(@RequestBody TypeclassUpdateRequest typeclassUpdateRequest){
         if(typeclassUpdateRequest == null || typeclassUpdateRequest.getClassId() <= 0){
             throw new BusinessException(ErrorCode.REQUEST_ERROR);
@@ -103,7 +108,7 @@ public class TypeclassController {
             if(!result){
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR,"修改类信息失败");
             }
-            return ResultsSet.success(result);
+            return Response.success(result);
         }
     }
 }

@@ -11,14 +11,13 @@
         <result column="age" property="age" />
         <result column="sex" property="sex" />
         <result column="phone" property="phone" />
-        <result column="role" property="role" />
         <result column="department" property="department" />
         <result column="is_deleted" property="isDeleted" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        uid, user_account, user_name, user_password, age, sex, phone, `role` , department , is_deleted
+        uid, user_account, user_name, user_password, age, sex, phone , department , is_deleted
     </sql>
 
 </mapper>

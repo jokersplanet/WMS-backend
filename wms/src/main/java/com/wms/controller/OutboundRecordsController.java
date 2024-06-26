@@ -24,6 +24,7 @@ import com.wms.service.UserService;
 import com.wms.service.WarehouseService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -60,12 +61,13 @@ public class OutboundRecordsController {
      * @return
      */
     @PostMapping("/list/page")
+    @PreAuthorize("hasAuthority('outboundRecords.listPage')")
     public Response<Page<OutboundRecordsVO>> listOutboundsByPage(@RequestBody OutboundRecordsQueryRequest outboundRecordsQueryRequest){
         int current = outboundRecordsQueryRequest.getCurrent();
         int size = outboundRecordsQueryRequest.getPageSize();
         Page<OutboundRecords> outboundRecordsPage = outboundRecordsService.page(new Page<>(current, size), outboundRecordsService.getQueryWrapper(outboundRecordsQueryRequest));
         Page<OutboundRecordsVO> outboundRecordsVOPage = outboundRecordsService.getOutboundRecordsVOPage(outboundRecordsPage);
-        return ResultsSet.success(outboundRecordsVOPage);
+        return Response.success(outboundRecordsVOPage);
     }
 
     /**
@@ -75,10 +77,11 @@ public class OutboundRecordsController {
      * @return
      */
     @PostMapping("/list/page/time")
+    @PreAuthorize("hasAuthority('outboundRecords.listPage.time')")
     public Response<Page<OutboundRecordsVO>> listOutboundsByTime(@RequestBody OutboundRecordsQueryRequest outboundRecordsQueryRequest){
         Page<OutboundRecords> outboundRecordsPage = outboundRecordsService.page(new Page<>(), outboundRecordsService.getQueryWrapper(outboundRecordsQueryRequest));
         Page<OutboundRecordsVO> outboundRecordsVOPage =  outboundRecordsService.getOutboundRecordsVOPage(outboundRecordsPage);
-        return ResultsSet.success(outboundRecordsVOPage);
+        return Response.success(outboundRecordsVOPage);
     }
 
 
@@ -88,6 +91,7 @@ public class OutboundRecordsController {
      * @return
      */
     @PostMapping("/add")
+    @PreAuthorize("hasAuthority('outboundRecords.add')")
     public Response<Integer> outboundsAdd(@RequestBody OutboundRecordsAddRequest outboundRecordsAddRequest){
         if(outboundRecordsAddRequest == null){
             throw new BusinessException(ErrorCode.SYSTEM_ERROR);
@@ -107,7 +111,7 @@ public class OutboundRecordsController {
             if(!save){
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR);
             }
-            return ResultsSet.success(outboundRecords.getOutboundId());
+            return Response.success(outboundRecords.getOutboundId());
         }
     }
 
@@ -117,12 +121,13 @@ public class OutboundRecordsController {
      * @return
      */
     @PostMapping("/delete")
+    @PreAuthorize("hasAuthority('outboundRecords.delete')")
     public Response<Boolean> outboundsDelete(@RequestBody OutboundRecordsDeleteRequest outboundRecordsDeleteRequest){
         if(outboundRecordsDeleteRequest == null || outboundRecordsDeleteRequest.getOutboundId() <= 0){
             throw new BusinessException(ErrorCode.REQUEST_ERROR);
         }
         boolean result = outboundRecordsService.removeById(outboundRecordsDeleteRequest.getOutboundId());
-        return ResultsSet.success(result);
+        return Response.success(result);
     }
 
     /**
@@ -131,6 +136,7 @@ public class OutboundRecordsController {
      * @return
      */
     @PostMapping("/update")
+    @PreAuthorize("hasAuthority('outboundRecords.update')")
     public Response<Boolean> outboundsUpdate(@RequestBody OutboundRecordsUpdateRequest outboundRecordsUpdateRequest) {
         if (outboundRecordsUpdateRequest == null || outboundRecordsUpdateRequest.getOutboundId() <= 0) {
             throw new BusinessException(ErrorCode.REQUEST_ERROR);
@@ -152,7 +158,7 @@ public class OutboundRecordsController {
             if (!result) {
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR, "修改出库记录失败");
             }
-            return ResultsSet.success(result);
+            return Response.success(result);
         }
     }
 }

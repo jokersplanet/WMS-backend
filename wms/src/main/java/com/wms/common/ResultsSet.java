@@ -11,22 +11,22 @@ public class ResultsSet {
      * @return
      * @param <T>
      */
-    public static <T> Response<T> success(T data){
-        return new Response<>(0,"ok",data);
-    }
+//    public static <T> Response<T> success(T data){
+//        return new Response<>(0,"ok",data);
+//    }
 
     /**
      * 失败
      * @param errorCode
      * @return
      */
-    public static Response error(ErrorCode errorCode){
-        return new Response(errorCode);
-    }
-    public static Response error(int code,String message){
-        return new Response(code,message,null);
-    }
-    public static Response error(ErrorCode errorCode,String message){
-        return new Response(errorCode.getCode(),null,message);
-    }
+//    public static Response error(ErrorCode errorCode){
+//        return new Response(errorCode);
+//    }
+//    public static Response error(int code,String message){
+//        return new Response(code,message,null);
+//    }
+//    public static Response error(ErrorCode errorCode,String message){
+//        return new Response(errorCode.getCode(),null,message);
+//    }
 }

@@ -28,17 +28,6 @@ public class UserQueryRequest extends QueryPageParam implements Serializable {
     private String userAccount;
 
     /**
-     * 用户电话
-     */
-    private String phone;
-
-
-    /**
-     * 用户角色：user/admin/ban
-     */
-    private String role;
-
-    /**
      * 所属部门
      */
     private Integer department;

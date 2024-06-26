@@ -1,5 +1,6 @@
 package com.wms.pojo.dto.user;
 
+import io.swagger.annotations.ApiModelProperty;
 import io.swagger.models.auth.In;
 import lombok.Data;
 
@@ -27,22 +28,18 @@ public class UserUpdateRequest implements Serializable {
      */
     private String userPassword;
 
-
     /**
      * 用户昵称
      */
     private String userName;
-    /**
-     * 用户电话
-     */
+
+    private Integer age;
+
+    private Integer sex;
+
     private String phone;
 
-    /**
-     * 用户角色：user/admin
-     */
-    private String role;
-
-    private Integer departmentId;
+    private Integer department;
 
     private static final long serialVersionUID = 1L;
 }

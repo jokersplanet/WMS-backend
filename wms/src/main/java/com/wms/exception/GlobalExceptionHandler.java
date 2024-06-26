@@ -4,8 +4,11 @@ import com.wms.common.ErrorCode;
 import com.wms.common.Response;
 import com.wms.common.ResultsSet;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
 
 /**
  * @author lwh
@@ -18,12 +21,24 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BusinessException.class)
     public Response<?> businessExceptionHandler(BusinessException e) {
         log.error("BusinessException", e);
-        return ResultsSet.error(e.getCode(), e.getMessage());
+        return Response.error(e.getCode(), e.getMessage());
     }
 
     @ExceptionHandler(RuntimeException.class)
     public Response<?> runtimeExceptionHandler(RuntimeException e){
         log.error("RuntimeException",e);
-        return ResultsSet.error(ErrorCode.SYSTEM_ERROR,"系统错误");
+        return Response.error(ErrorCode.SYSTEM_ERROR,e.getMessage());
+    }
+
+    /**
+     * spring security异常
+     * @param e
+     * @return
+     * @throws AccessDeniedException
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseBody
+    public Response<?> authorityException(AccessDeniedException e) throws AccessDeniedException{
+        return Response.error(ErrorCode.PERMISSION);
     }
 }

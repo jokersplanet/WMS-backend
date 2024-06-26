@@ -12,7 +12,11 @@ import java.io.Serializable;
 public class UserLoginRequest implements Serializable {
     private static final long serialVersionUID = 3191241716373120793L;
 
+    private Integer uid;
+
     private String userAccount;
+
+    private String userName;
 
     private String userPassword;
 }

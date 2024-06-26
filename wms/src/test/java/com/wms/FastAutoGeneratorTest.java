@@ -56,7 +56,7 @@ public class FastAutoGeneratorTest {
         gc.setBaseResultMap(true);//XML ResultMap
         gc.setBaseColumnList(true);//XML    columnList
         //去掉service接口首字母的I，如DO为User则叫UserService
-        gc.setServiceName("%sServer");
+        gc.setServiceName("%sService");
         mpg.setGlobalConfig(gc);
 
         // 数据源配置

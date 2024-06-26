@@ -14,6 +14,7 @@ import com.wms.pojo.entity.Warehouse;
 import com.wms.service.WarehouseService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -44,11 +45,12 @@ public class WarehouseController {
      * @return
      */
     @PostMapping("/list/page")
+    @PreAuthorize("hasAuthority('warehouse.listPage')")
     public Response<Page<Warehouse>> listWarehouseByPage(@RequestBody WarehouseQueryRequest warehouseQueryRequest){
         int current = warehouseQueryRequest.getCurrent();
         int size = warehouseQueryRequest.getPageSize();
         Page<Warehouse> page = warehouseService.page(new Page<>(current, size), warehouseService.getQueryWrapper(warehouseQueryRequest));
-        return ResultsSet.success(page);
+        return Response.success(page);
     }
 
     /**
@@ -57,6 +59,7 @@ public class WarehouseController {
      * @return
      */
     @PostMapping("/add")
+    @PreAuthorize("hasAuthority('warehouse.add')")
     public Response<Integer> warehouseAdd(@RequestBody WarehouseAddRequest warehouseAddRequest){
         if(warehouseAddRequest == null){
             throw new BusinessException(ErrorCode.SYSTEM_ERROR);
@@ -67,7 +70,7 @@ public class WarehouseController {
         if(!save){
             throw new BusinessException(ErrorCode.SYSTEM_ERROR);
         }
-        return ResultsSet.success(warehouse.getWareId());
+        return Response.success(warehouse.getWareId());
     }
 
     /**
@@ -76,12 +79,13 @@ public class WarehouseController {
      * @return
      */
     @PostMapping("/delete")
+    @PreAuthorize("hasAuthority('warehouse.delete')")
     public Response<Boolean> warehouseDelete(@RequestBody WarehouseDeleteRequest warehouseDeleteRequest){
         if(warehouseDeleteRequest == null || warehouseDeleteRequest.getWareId() <= 0){
             throw new BusinessException(ErrorCode.REQUEST_ERROR);
         }
         boolean result = warehouseService.removeById(warehouseDeleteRequest.getWareId());
-        return ResultsSet.success(result);
+        return Response.success(result);
     }
 
     /**
@@ -90,6 +94,7 @@ public class WarehouseController {
      * @return
      */
     @PostMapping("/update")
+    @PreAuthorize("hasAuthority('warehouse.update')")
     public Response<Boolean> warehouseUpdate(@RequestBody WarehouseUpdateRequest warehouseUpdateRequest){
         if(warehouseUpdateRequest == null || warehouseUpdateRequest.getWareId() <= 0){
             throw new BusinessException(ErrorCode.REQUEST_ERROR);
@@ -103,7 +108,7 @@ public class WarehouseController {
             if(!result){
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR,"修改状态记录失败");
             }
-            return ResultsSet.success(result);
+            return Response.success(result);
         }
     }
 }

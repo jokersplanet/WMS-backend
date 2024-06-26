@@ -14,6 +14,7 @@ import com.wms.pojo.entity.Department;
 import com.wms.service.DepartmentService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -36,11 +37,12 @@ public class DepartmentController {
      * @return
      */
     @PostMapping("/list/page")
+    @PreAuthorize("hasAuthority('department.listPage')")
     public Response<Page<Department>> listDepartmentByPage(@RequestBody DepartmentQueryRequest departmentQueryRequest){
         int current = departmentQueryRequest.getCurrent();
         int size = departmentQueryRequest.getPageSize();
         Page<Department> page = departmentService.page(new Page<>(current, size), departmentService.getQueryWrapper(departmentQueryRequest));
-        return ResultsSet.success(page);
+        return Response.success(page);
     }
 
     /**
@@ -49,6 +51,7 @@ public class DepartmentController {
      * @return
      */
     @PostMapping("/add")
+    @PreAuthorize("hasAuthority('department.add')")
     public Response<Integer> departmentAdd(@RequestBody DepartmentAddRequest departmentAddRequest) {
         if (departmentAddRequest == null) {
             throw new BusinessException(ErrorCode.REQUEST_ERROR);
@@ -65,7 +68,7 @@ public class DepartmentController {
         if(!save){
             throw new BusinessException(ErrorCode.SYSTEM_ERROR);
         }
-        return ResultsSet.success(department.getDptId());
+        return Response.success(department.getDptId());
     }
 
     /**
@@ -74,12 +77,13 @@ public class DepartmentController {
      * @return
      */
     @PostMapping("/delete")
+    @PreAuthorize("hasAuthority('department.delete')")
     public Response<Boolean> departmentDelete(@RequestBody DepartmentDeleteRequest departmentDeleteRequest){
         if(departmentDeleteRequest == null || departmentDeleteRequest.getDptId() <= 0){
             throw new BusinessException(ErrorCode.REQUEST_ERROR);
         }
         boolean result = departmentService.removeById(departmentDeleteRequest.getDptId());
-        return ResultsSet.success(result);
+        return Response.success(result);
     }
 
     /**
@@ -88,6 +92,7 @@ public class DepartmentController {
      * @return
      */
     @PostMapping("/update")
+    @PreAuthorize("hasAuthority('department.update')")
     public Response<Boolean> departmentUpdate(@RequestBody DepartmentUpdateRequest departmentUpdateRequest){
         if(departmentUpdateRequest == null || departmentUpdateRequest.getDptId() == null){
             throw new BusinessException(ErrorCode.REQUEST_ERROR);
@@ -104,6 +109,6 @@ public class DepartmentController {
         if(!result){
             throw new BusinessException(ErrorCode.SYSTEM_ERROR);
         }
-        return ResultsSet.success(result);
+        return Response.success(result);
     }
 }

@@ -21,6 +21,7 @@ import com.wms.service.UserService;
 import com.wms.service.WarehouseService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -57,12 +58,13 @@ public class InboundRecordsController {
      * @return
      */
     @PostMapping("/list/page")
+    @PreAuthorize("hasAuthority('inboundRecords.listPage')")
     public Response<Page<InboundRecordsVO>> listInboundsByPage(@RequestBody InboundRecordsQueryRequest inboundRecordsQueryRequest){
         int current = inboundRecordsQueryRequest.getCurrent();
         int size = inboundRecordsQueryRequest.getPageSize();
         Page<InboundRecords> inboundRecordsPage = inboundRecordsService.page(new Page<>(current, size), inboundRecordsService.getQueryWrapper(inboundRecordsQueryRequest));
         Page<InboundRecordsVO> inboundRecordsVOPage =  inboundRecordsService.getInboundRecordsVOPage(inboundRecordsPage);
-        return ResultsSet.success(inboundRecordsVOPage);
+        return Response.success(inboundRecordsVOPage);
     }
 
     /**
@@ -72,10 +74,11 @@ public class InboundRecordsController {
      * @return
      */
     @PostMapping("/list/page/time")
+    @PreAuthorize("hasAuthority('inboundRecords.listPage.time')")
     public Response<Page<InboundRecordsVO>> listInboundsByTime(@RequestBody InboundRecordsQueryRequest inboundRecordsQueryRequest){
         Page<InboundRecords> inboundRecordsPage = inboundRecordsService.page(new Page<>(), inboundRecordsService.getQueryWrapper(inboundRecordsQueryRequest));
         Page<InboundRecordsVO> inboundRecordsVOPage =  inboundRecordsService.getInboundRecordsVOPage(inboundRecordsPage);
-        return ResultsSet.success(inboundRecordsVOPage);
+        return Response.success(inboundRecordsVOPage);
     }
 
     /**
@@ -84,6 +87,7 @@ public class InboundRecordsController {
      * @return
      */
     @PostMapping("/add")
+    @PreAuthorize("hasAuthority('inboundRecords.add')")
     public Response<Integer> inboundsAdd(@RequestBody InboundRecordsAddRequest inboundRecordsAddRequest){
         if(inboundRecordsAddRequest == null){
             throw new BusinessException(ErrorCode.SYSTEM_ERROR);
@@ -103,7 +107,7 @@ public class InboundRecordsController {
             if(!save){
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR);
             }
-            return ResultsSet.success(inboundRecords.getInboundId());
+            return Response.success(inboundRecords.getInboundId());
         }
     }
 
@@ -113,12 +117,13 @@ public class InboundRecordsController {
      * @return
      */
     @PostMapping("/delete")
+    @PreAuthorize("hasAuthority('inboundRecords.delete')")
     public Response<Boolean> inboundsDelete(@RequestBody InboundRecordsDeleteRequest inboundRecordsDeleteRequest){
         if(inboundRecordsDeleteRequest == null || inboundRecordsDeleteRequest.getInboundId() <= 0){
             throw new BusinessException(ErrorCode.REQUEST_ERROR);
         }
         boolean result = inboundRecordsService.removeById(inboundRecordsDeleteRequest.getInboundId());
-        return ResultsSet.success(result);
+        return Response.success(result);
     }
 
     /**
@@ -127,6 +132,7 @@ public class InboundRecordsController {
      * @return
      */
     @PostMapping("/update")
+    @PreAuthorize("hasAuthority('inboundRecords.update')")
     public Response<Boolean> inboundsUpdate(@RequestBody InboundRecordsUpdateRequest inboundRecordsUpdateRequest) {
         if (inboundRecordsUpdateRequest == null || inboundRecordsUpdateRequest.getInboundId() <= 0) {
             throw new BusinessException(ErrorCode.REQUEST_ERROR);
@@ -148,7 +154,7 @@ public class InboundRecordsController {
             if (!result) {
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR, "修改入库记录失败");
             }
-            return ResultsSet.success(result);
+            return Response.success(result);
         }
     }
 }

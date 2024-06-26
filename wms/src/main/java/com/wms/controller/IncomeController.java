@@ -18,6 +18,7 @@ import com.wms.pojo.entity.Income;
 import com.wms.service.IncomeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,11 +49,12 @@ public class IncomeController {
      * @return
      */
     @PostMapping("/list/page")
+    @PreAuthorize("hasAuthority('income.listPage')")
     public Response<Page<Income>> listIncomeByPage(@RequestBody IncomeQueryRequest incomeQueryRequest){
         int current = incomeQueryRequest.getCurrent();
         int size = incomeQueryRequest.getPageSize();
         Page<Income> page = incomeService.page(new Page<>(current, size), incomeService.getQueryWrapper(incomeQueryRequest));
-        return ResultsSet.success(page);
+        return Response.success(page);
     }
 
     /**
@@ -62,9 +64,10 @@ public class IncomeController {
      * @return
      */
     @PostMapping("/list/page/time")
+    @PreAuthorize("hasAuthority('income.listPage.time')")
     public Response<Page<Income>> listIncomeByTime(@RequestBody IncomeQueryRequest incomeQueryRequest){
         Page<Income> page = incomeService.page(new Page<>(), incomeService.getQueryWrapper(incomeQueryRequest));
-        return ResultsSet.success(page);
+        return Response.success(page);
     }
 
     /**
@@ -73,6 +76,7 @@ public class IncomeController {
      * @return
      */
     @PostMapping("/add")
+    @PreAuthorize("hasAuthority('income.add')")
     public Response<Integer> incomeAdd(@RequestBody IncomeAddRequest incomeAddRequest){
         if(incomeAddRequest == null){
             throw new BusinessException(ErrorCode.REQUEST_ERROR);
@@ -83,7 +87,7 @@ public class IncomeController {
         if(!save){
             throw new BusinessException(ErrorCode.SYSTEM_ERROR);
         }
-        return ResultsSet.success(income.getIncomeId());
+        return Response.success(income.getIncomeId());
     }
 
     /**
@@ -92,12 +96,13 @@ public class IncomeController {
      * @return
      */
     @PostMapping("/delete")
+    @PreAuthorize("hasAuthority('income.delete')")
     public Response<Boolean> incomeDelete(@RequestBody IncomeDeleteRequest incomeDeleteRequest){
         if(incomeDeleteRequest == null || incomeDeleteRequest.getIncomeId() <= 0){
             throw new BusinessException(ErrorCode.REQUEST_ERROR);
         }
         boolean result = incomeService.removeById(incomeDeleteRequest.getIncomeId());
-        return ResultsSet.success(result);
+        return Response.success(result);
     }
 
     /**
@@ -106,6 +111,7 @@ public class IncomeController {
      * @return
      */
     @PostMapping("/update")
+    @PreAuthorize("hasAuthority('income.update')")
     public Response<Boolean> incomeUpdate(@RequestBody IncomeUpdateRequest incomeUpdateRequest){
         if(incomeUpdateRequest == null || incomeUpdateRequest.getIncomeId() <= 0){
             throw new BusinessException(ErrorCode.REQUEST_ERROR);
@@ -119,7 +125,7 @@ public class IncomeController {
             if(!result){
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR,"修改记录失败");
             }
-            return ResultsSet.success(result);
+            return Response.success(result);
         }
     }
 }

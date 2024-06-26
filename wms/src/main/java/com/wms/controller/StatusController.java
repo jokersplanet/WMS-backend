@@ -17,6 +17,7 @@ import com.wms.service.OrdersService;
 import com.wms.service.StatusService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,11 +47,12 @@ public class StatusController {
      * @return
      */
     @PostMapping("/list/page")
+    @PreAuthorize("hasAuthority('status.listPage')")
     public Response<Page<Status>> listStatusByPage(@RequestBody StatusQueryRequest statusQueryRequest){
         int current = statusQueryRequest.getCurrent();
         int size = statusQueryRequest.getPageSize();
         Page<Status> page = statusService.page(new Page<>(current, size), statusService.getQueryWrapper(statusQueryRequest));
-        return ResultsSet.success(page);
+        return Response.success(page);
     }
 
     /**
@@ -59,6 +61,7 @@ public class StatusController {
      * @return
      */
     @PostMapping("/add")
+    @PreAuthorize("hasAuthority('status.add')")
     public Response<Integer> statusAdd(@RequestBody StatusAddRequest statusAddRequest){
         if(statusAddRequest == null){
             throw new BusinessException(ErrorCode.SYSTEM_ERROR);
@@ -69,7 +72,7 @@ public class StatusController {
         if(!save){
             throw new BusinessException(ErrorCode.SYSTEM_ERROR);
         }
-        return ResultsSet.success(status.getId());
+        return Response.success(status.getId());
     }
 
     /**
@@ -78,6 +81,7 @@ public class StatusController {
      * @return
      */
     @PostMapping("/delete")
+    @PreAuthorize("hasAuthority('status.delete')")
     public Response<Boolean> statusDelete(@RequestBody StatusDeleteRequest statusDeleteRequest){
         if(statusDeleteRequest == null || statusDeleteRequest.getId() <= 0){
             throw new BusinessException(ErrorCode.REQUEST_ERROR);
@@ -88,7 +92,7 @@ public class StatusController {
             throw new BusinessException(ErrorCode.REQUEST_ERROR,"该状态下存在订单无法删除");
         }else{
             boolean result = statusService.removeById(statusDeleteRequest.getId());
-            return ResultsSet.success(result);
+            return Response.success(result);
         }
     }
 
@@ -98,6 +102,7 @@ public class StatusController {
      * @return
      */
     @PostMapping("/update")
+    @PreAuthorize("hasAuthority('status.update')")
     public Response<Boolean> statusUpdate(@RequestBody StatusUpdateRequest statusUpdateRequest){
         if(statusUpdateRequest == null || statusUpdateRequest.getId() <= 0){
             throw new BusinessException(ErrorCode.REQUEST_ERROR);
@@ -111,7 +116,7 @@ public class StatusController {
             if(!result){
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR,"修改状态记录失败");
             }
-            return ResultsSet.success(result);
+            return Response.success(result);
         }
     }
 }

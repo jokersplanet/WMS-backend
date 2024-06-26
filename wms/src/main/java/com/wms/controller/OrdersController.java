@@ -17,6 +17,7 @@ import com.wms.service.OrdersService;
 import com.wms.service.StatusService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -51,12 +52,13 @@ public class OrdersController {
      * @return
      */
     @PostMapping("/list/page")
+    @PreAuthorize("hasAuthority('orders.listPage')")
     public Response<Page<OrdersVO>> listOrdersByPage(@RequestBody OrdersQueryRequest ordersQueryRequest){
         int current = ordersQueryRequest.getCurrent();
         int size = ordersQueryRequest.getPageSize();
         Page<Orders> ordersPage = ordersService.page(new Page<>(current, size), ordersService.getQueryWrapper(ordersQueryRequest));
         Page<OrdersVO> ordersVOPage = ordersService.getOrdersVOPage(ordersPage);
-        return ResultsSet.success(ordersVOPage);
+        return Response.success(ordersVOPage);
     }
 
     /**
@@ -66,10 +68,11 @@ public class OrdersController {
      * @return
      */
     @PostMapping("/list/page/time")
+    @PreAuthorize("hasAuthority('orders.listPage.time')")
     public Response<Page<OrdersVO>> listOrdersByTime(@RequestBody OrdersQueryRequest ordersQueryRequest){
         Page<Orders> ordersPage = ordersService.page(new Page<>(), ordersService.getQueryWrapper(ordersQueryRequest));
         Page<OrdersVO> ordersVOPage = ordersService.getOrdersVOPage(ordersPage);
-        return ResultsSet.success(ordersVOPage);
+        return Response.success(ordersVOPage);
     }
 
     /**
@@ -78,6 +81,7 @@ public class OrdersController {
      * @return
      */
     @PostMapping("/add")
+    @PreAuthorize("hasAuthority('orders.add')")
     public Response<Integer> ordersAdd(@RequestBody OrdersAddRequest ordersAddRequest){
         if(ordersAddRequest == null){
             throw new BusinessException(ErrorCode.SYSTEM_ERROR);
@@ -93,7 +97,7 @@ public class OrdersController {
             if(!save){
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR);
             }
-            return ResultsSet.success(order.getOrderId());
+            return Response.success(order.getOrderId());
         }
     }
 
@@ -103,12 +107,13 @@ public class OrdersController {
      * @return
      */
     @PostMapping("/delete")
+    @PreAuthorize("hasAuthority('orders.delete')")
     public Response<Boolean> ordersDelete(@RequestBody OrdersDeleteRequest ordersDeleteRequest){
         if(ordersDeleteRequest == null || ordersDeleteRequest.getOrderId() <= 0){
             throw new BusinessException(ErrorCode.REQUEST_ERROR);
         }
         boolean result = ordersService.removeById(ordersDeleteRequest.getOrderId());
-        return ResultsSet.success(result);
+        return Response.success(result);
     }
 
     /**
@@ -117,6 +122,7 @@ public class OrdersController {
      * @return
      */
     @PostMapping("/update")
+    @PreAuthorize("hasAuthority('orders.update')")
     public Response<Boolean> ordersUpdate(@RequestBody OrdersUpdateRequest ordersUpdateRequest){
         if(ordersUpdateRequest == null || ordersUpdateRequest.getOrderId() <= 0){
             throw new BusinessException(ErrorCode.REQUEST_ERROR);
@@ -134,7 +140,7 @@ public class OrdersController {
             if(!result){
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR,"修改订单失败");
             }
-            return ResultsSet.success(result);
+            return Response.success(result);
         }
     }
 }

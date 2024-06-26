@@ -9,4 +9,6 @@ import java.io.Serializable;
 public class UserVO implements Serializable {
     private Integer uid;
     private String userName;
+
+    private DepartmentVO departmentVO;
 }

@@ -16,11 +16,6 @@ public class UserAddRequest implements Serializable {
      */
     private String phone;
 
-    /**
-     * 用户角色：user/admin/ban
-     */
-    private String role;
-
 
     private static final long serialVersionUID = 1L;
 }

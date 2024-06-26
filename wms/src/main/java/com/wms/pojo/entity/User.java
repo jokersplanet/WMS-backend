@@ -48,9 +48,6 @@ public class User implements Serializable {
     @ApiModelProperty("电话")
     private String phone;
 
-    @ApiModelProperty("角色")
-    private String role;
-
     @ApiModelProperty("部门")
     private Integer department;
 

@@ -17,6 +17,7 @@ import com.wms.service.GoodsService;
 import com.wms.service.UnitService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -49,11 +50,12 @@ public class UnitController {
      * @return
      */
     @PostMapping("/list/page")
+    @PreAuthorize("hasAuthority('unit.listPage')")
     public Response<Page<Unit>> listUnitByPage(@RequestBody UnitQueryRequest unitQueryRequest){
         int current = unitQueryRequest.getCurrent();
         int size = unitQueryRequest.getPageSize();
         Page<Unit> page = unitService.page(new Page<>(current, size), unitService.getQueryWrapper(unitQueryRequest));
-        return ResultsSet.success(page);
+        return Response.success(page);
     }
 
     /**
@@ -62,6 +64,7 @@ public class UnitController {
      * @return
      */
     @PostMapping("/add")
+    @PreAuthorize("hasAuthority('unit.add')")
     public Response<Integer> unitAdd(@RequestBody UnitAddRequest unitAddRequest){
         if(unitAddRequest == null){
             throw new BusinessException(ErrorCode.SYSTEM_ERROR);
@@ -72,7 +75,7 @@ public class UnitController {
         if(!save){
             throw new BusinessException(ErrorCode.SYSTEM_ERROR);
         }
-        return ResultsSet.success(unit.getUnitId());
+        return Response.success(unit.getUnitId());
     }
 
     /**
@@ -81,6 +84,7 @@ public class UnitController {
      * @return
      */
     @PostMapping("/delete")
+    @PreAuthorize("hasAuthority('unit.delete')")
     public Response<Boolean> unitDelete(@RequestBody UnitDeleteRequest unitDeleteRequest){
         if(unitDeleteRequest == null || unitDeleteRequest.getUnitId() <= 0){
             throw new BusinessException(ErrorCode.REQUEST_ERROR);
@@ -91,7 +95,7 @@ public class UnitController {
             throw new BusinessException(ErrorCode.REQUEST_ERROR,"该单位下存在货物无法删除");
         }else{
             boolean result = unitService.removeById(unitDeleteRequest.getUnitId());
-            return ResultsSet.success(result);
+            return Response.success(result);
         }
     }
 
@@ -101,6 +105,7 @@ public class UnitController {
      * @return
      */
     @PostMapping("/update")
+    @PreAuthorize("hasAuthority('unit.update')")
     public Response<Boolean> unitUpdate(@RequestBody UnitUpdateRequest unitUpdateRequest){
         if(unitUpdateRequest == null || unitUpdateRequest.getUnitId() <= 0){
             throw new BusinessException(ErrorCode.REQUEST_ERROR);
@@ -114,7 +119,7 @@ public class UnitController {
             if(!result){
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR,"修改单位记录失败");
             }
-            return ResultsSet.success(result);
+            return Response.success(result);
         }
     }
 }

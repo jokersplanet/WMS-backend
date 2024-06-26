@@ -15,6 +15,7 @@ import com.wms.pojo.entity.Expenditure;
 import com.wms.service.ExpenditureService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -40,11 +41,12 @@ public class ExpenditureController {
      * @return
      */
     @PostMapping("/list/page")
+    @PreAuthorize("hasAuthority('expenditure.listPage')")
     public Response<Page<Expenditure>> listExpenditureByPage(@RequestBody ExpenditureQueryRequest expenditureQueryRequest){
         int current = expenditureQueryRequest.getCurrent();
         int size = expenditureQueryRequest.getPageSize();
         Page<Expenditure> page = expenditureService.page(new Page<>(current, size), expenditureService.getQueryWrapper(expenditureQueryRequest));
-        return ResultsSet.success(page);
+        return Response.success(page);
     }
 
     /**
@@ -53,6 +55,7 @@ public class ExpenditureController {
      * @return
      */
     @PostMapping("/list/page/time")
+    @PreAuthorize("hasAuthority('expenditure.listPage.time')")
     public Response<Page<Expenditure>> listExpenditureByTime(@RequestBody ExpenditureQueryRequest expenditureQueryRequest){
         Date startDate = expenditureQueryRequest.getStartDate();
         Date endDate = expenditureQueryRequest.getEndDate();
@@ -60,7 +63,7 @@ public class ExpenditureController {
         queryWrapper.between("time",startDate,endDate);
 //        List<Expenditure> list = expenditureService.list(queryWrapper);
         Page<Expenditure> page = expenditureService.page(new Page<>(),expenditureService.getQueryWrapper(expenditureQueryRequest));
-        return ResultsSet.success(page);
+        return Response.success(page);
     }
 
     /**
@@ -69,6 +72,7 @@ public class ExpenditureController {
      * @return
      */
     @PostMapping("/add")
+    @PreAuthorize("hasAuthority('expenditure.add')")
     public Response<Integer> expenditureAdd(@RequestBody ExpenditureAddRequest expenditureAddRequest){
         if(expenditureAddRequest == null){
             throw new BusinessException(ErrorCode.REQUEST_ERROR);
@@ -79,7 +83,7 @@ public class ExpenditureController {
         if(!save){
             throw new BusinessException(ErrorCode.SYSTEM_ERROR);
         }
-        return ResultsSet.success(expenditure.getExpId());
+        return Response.success(expenditure.getExpId());
     }
 
     /**
@@ -88,12 +92,13 @@ public class ExpenditureController {
      * @return
      */
     @PostMapping("/delete")
+    @PreAuthorize("hasAuthority('expenditure.delete')")
     public Response<Boolean> expenditureDelete(@RequestBody ExpenditureDeleteRequest expenditureDeleteRequest){
         if(expenditureDeleteRequest == null || expenditureDeleteRequest.getExpId() <= 0){
             throw new BusinessException(ErrorCode.REQUEST_ERROR);
         }
         boolean result = expenditureService.removeById(expenditureDeleteRequest.getExpId());
-        return ResultsSet.success(result);
+        return Response.success(result);
     }
 
     /**
@@ -102,6 +107,7 @@ public class ExpenditureController {
      * @return
      */
     @PostMapping("/update")
+    @PreAuthorize("hasAuthority('expenditure.update')")
     public Response<Boolean> expenditureUpdate(@RequestBody ExpenditureUpdateRequest expenditureUpdateRequest){
         if(expenditureUpdateRequest == null || expenditureUpdateRequest.getExpId() <= 0){
             throw new BusinessException(ErrorCode.REQUEST_ERROR);
@@ -115,7 +121,7 @@ public class ExpenditureController {
             if(!result){
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR,"修改记录失败");
             }
-            return ResultsSet.success(result);
+            return Response.success(result);
         }
     }
 }
